@@ -1,5 +1,9 @@
 # NFT-Marketplace
 
+## What upgraded from V1 -> V2 ?
+
+There were some fixes to the nftMarketplace as well as NFT contract not keeping correct state about NFTs if maliciously used.
+
 ## Status
 
 The NFT Marketplace is currently running and fully functional on Rinkeby at
