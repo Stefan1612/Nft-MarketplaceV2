@@ -30,6 +30,11 @@ interface IEngAuctionFactory {
         uint _startingBid) external;
 }
 
+interface INFT{
+    function s_tokenIds() external view returns(uint);
+}
+
+
 // LIBRARIES ------------------------------------------------------------------------------------
 /// @notice Counter Library to keep track of TokenID
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -51,7 +56,7 @@ error NftMarketPlace__CallerIsOwnerOfToken(address caller, uint tokenId);
 /// @notice Contract used to allow trading, selling, creating Market Items (NFT)
 /// @dev Please NOTE: I've added custom error messages in this version due to gas efficiency BUT because of the unconvential 
 // syntax I have also added the require statements in the comments for a less gas efficient but more readable alternative.
-contract NftMarketPlace is ReentrancyGuard, ERC2771Recipient{
+contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
 
 
     // BICONOMY
@@ -82,14 +87,16 @@ contract NftMarketPlace is ReentrancyGuard, ERC2771Recipient{
     /// @notice Market Token that gets minted every time someone mints on our market
     /// @dev struct representing our MarketToken and its values at any given time
     struct MarketToken {
-        address nftContractAddress;
+        // can be added to make the contract more dynamic in the future: 
+        // address nftContractAddress;
+        
         uint256 tokenId;
         uint256 price;
         // saving onSale and owner inside one 1 storage slot.
         bool onSale;
-        address payable owner;
+        /* address payable owner; */
         address payable seller;
-        address minter;
+        /* address minter; */
     }
 
     /// @notice indexing from ID to the associated market Token
@@ -155,7 +162,7 @@ contract NftMarketPlace is ReentrancyGuard, ERC2771Recipient{
         _setTrustedForwarder(forwarder);
     }
 
-    /// @notice used for tips to project creator/deployer
+    /// @notice used for tips and listingprice from NFT contract to project creator/deployer
     fallback() payable external {
         s_profits += msg.value;
     }
@@ -178,7 +185,7 @@ contract NftMarketPlace is ReentrancyGuard, ERC2771Recipient{
     /// @notice sell NFT
     /// @dev putting market Token for sale on marketplace
     /// @param _tokenId tokenID of NFT putting up for sale, sellPrice the price you want the NFT to be sold for, _nftContractAddress contract address of the NFT you want to sell 
-    function saleMarketToken(
+    function sellMarketToken(
         uint256 _tokenId,
         uint256 sellPrice /* , */
         // address _nftContractAddress
@@ -186,7 +193,7 @@ contract NftMarketPlace is ReentrancyGuard, ERC2771Recipient{
         if(sellPrice <= 0){
             revert NftMarketPlace__invalidSellPrice(_msgSender(), sellPrice);
         }
-        if(!idToMarketToken[_tokenId].onSale == false){
+        if(idToMarketToken[_tokenId].onSale == true){
             revert NftMarketPlace__TokenAlreadyOnSale(_tokenId);
         }
         if(IERC721(nftAddress).ownerOf(_tokenId) != _msgSender()){
@@ -212,10 +219,11 @@ contract NftMarketPlace is ReentrancyGuard, ERC2771Recipient{
         );
 
         /// @dev updating state of for sale listed NFT
-        
+        idToMarketToken[_tokenId] = MarketToken(_tokenId, sellPrice, true, payable(_msgSender()));
+       /*  idToMarketToken[_tokenId].tokenId = _tokenId;
         idToMarketToken[_tokenId].price = sellPrice;
         idToMarketToken[_tokenId].onSale = true;
-        idToMarketToken[_tokenId].seller = payable(_msgSender());
+        idToMarketToken[_tokenId].seller = payable(_msgSender()); */
     }
 
     /// @notice buy NFT
@@ -236,6 +244,9 @@ contract NftMarketPlace is ReentrancyGuard, ERC2771Recipient{
             revert NftMarketPlace__UnequalToSellPrice(msg.value);
         }
         if(_msgSender() == IERC721(nftAddress).ownerOf(_tokenId)){
+            revert NftMarketPlace__CallerIsOwnerOfToken(_msgSender(), _tokenId);
+        }
+        if(_msgSender() == idToMarketToken[_tokenId].seller){
             revert NftMarketPlace__CallerIsOwnerOfToken(_msgSender(), _tokenId);
         }
         /* /// @dev require existing ID
@@ -265,9 +276,10 @@ contract NftMarketPlace is ReentrancyGuard, ERC2771Recipient{
         payable(idToMarketToken[_tokenId].seller).transfer(msg.value);
 
         /// @dev update the state of bought market Token
-        idToMarketToken[_tokenId].price = 0;
+        delete idToMarketToken[_tokenId];
+        /* idToMarketToken[_tokenId].price = 0;
         idToMarketToken[_tokenId].onSale = false;
-        idToMarketToken[_tokenId].owner = payable(_msgSender());
+        idToMarketToken[_tokenId].owner = payable(_msgSender()); */
     }
 
     /// @notice getting all tokens which are currently up for sale
@@ -275,7 +287,8 @@ contract NftMarketPlace is ReentrancyGuard, ERC2771Recipient{
     function fetchAllTokensOnSale() external view returns (MarketToken[] memory) {
 
         /// @dev saving current ID to save some gas
-        uint256 currentLastTokenId = s_tokenIds.current();
+        uint256 currentLastTokenId = INFT(nftAddress).s_tokenIds();
+        /* s_tokenIds.current(); */
 
         uint256 tokensOnSale;
         /// @dev loop to get the number of tokens on sale
@@ -284,9 +297,11 @@ contract NftMarketPlace is ReentrancyGuard, ERC2771Recipient{
                 tokensOnSale += 1;
             }
         }
+
         /// @dev creating a memory array with the length of num "of tokens on sale"
         MarketToken[] memory res = new MarketToken[](tokensOnSale);
         uint256 count = 0;
+
         /// @dev updating the memory array with all market tokens with onSale == true
         for (uint256 i = 1; i <= currentLastTokenId; i++) {
             if (idToMarketToken[i].onSale == true) {
@@ -297,17 +312,12 @@ contract NftMarketPlace is ReentrancyGuard, ERC2771Recipient{
         return res;
     }
 
-    
-    address nftAddress;
+    address private nftAddress;
 
     // onlyOwner
     function setNftAddress(address _nftAddress) external  {
         nftAddress = _nftAddress;
     }
-
-
-
-    /* delete/burn NFT function can be added here*/
 
 
     /// @notice getting all tokens which currently belong to _msgSender()
@@ -321,99 +331,41 @@ contract NftMarketPlace is ReentrancyGuard, ERC2771Recipient{
        
         MarketToken[] memory resultArray = new MarketToken[](sumOfAllCallerNFTs);
         
-
         // remove unnessary outputs
         for(uint i = 0; sumOfAllCallerNFTs <= counter ; i++){
            address owner =  IERC721(nftAddress).ownerOf(i);
            if(owner == _msgSender()){
             counter++;
             resultArray[counter] = MarketToken(  
-                nftAddress,
                 i,
-                // price 
                 0,
-                // saving onSale and owner inside one 1 storage slot.
-                // onSale 
                 false,
-                payable(_msgSender()),
-                // seller 
-                payable(_msgSender()),
-                // minter 
-                _msgSender()
+                payable(_msgSender())
                 );
             }
         }
-            
-        
-
-
-        /////////////////////////////
-
-
-
-       /*  /// @dev saving current ID to save some gas
-        uint256 currentLastTokenId = s_tokenIds.current();
-
-        uint256 yourTokenCount;
-        /// @dev loop to get the number of tokens currently belonging to _msgSender()
-        for (uint256 i = 1; i <= currentLastTokenId; i++) {
-            if (idToMarketToken[i].owner == _msgSender()) {
-                yourTokenCount += 1;
-            }
-        }
-        /// @dev creating a memory array with the length of num "of tokens belonging to _msgSender()"
-        MarketToken[] memory res = new MarketToken[](yourTokenCount);
-        uint256 count = 0;
-        /// @dev updating the memory array with all market tokens with onSale == true
-        for (uint256 i = 1; i <= currentLastTokenId; i++) {
-            if (idToMarketToken[i].owner == _msgSender()) {
-                res[count] = idToMarketToken[i];
-                count += 1;
-            }
-        } */
         return resultArray;
     }
-    /// @notice getting all tokens which got minted by the caller
-    /// @return array of Market Tokens which got minted by the caller
-    function fetchTokensMintedByCaller()
-        external
-        view
-        returns (MarketToken[] memory)
-    {   
-        /// @dev saving current ID to save some gas
-        uint256 currentLastTokenId = s_tokenIds.current();
 
-        uint256 yourMintedTokens;
-        /// @dev loop to get the number of tokens minted by caller
-        for (uint256 i = 1; i <= currentLastTokenId; i++) {
-            if (idToMarketToken[i].minter == _msgSender()) {
-                yourMintedTokens += 1;
-            }
-        }
-        /// @dev creating a memory array with the length of num "minted by caller"
-        MarketToken[] memory res = new MarketToken[](yourMintedTokens);
-        uint256 count = 0;
-        /// @dev updating the memory array with all market tokens which are minted by the caller
-        for (uint256 i = 1; i <= currentLastTokenId; i++) {
-            if (idToMarketToken[i].minter == _msgSender()) {
-                res[count] = idToMarketToken[i];
-                count += 1;
-            }
-        }
-        return res;
-    }
     /// @notice returns all market tokens
     /// @return array of all market tokens
     function fetchAllTokens() external view returns (MarketToken[] memory) {
-        uint256 currentLastTokenId = s_tokenIds.current();
+        
+        /// @dev saving current ID to save some gas
+        uint256 currentLastTokenId = INFT(nftAddress).s_tokenIds();
 
-        MarketToken[] memory res = new MarketToken[](currentLastTokenId);
-        uint256 count = 0;
-        for (uint256 i = 1; i <= currentLastTokenId; i++) {
-            res[count] = idToMarketToken[i];
-            count += 1;
+        MarketToken[] memory resultArray = new MarketToken[](currentLastTokenId);
+
+          // remove unnessary outputs
+        for(uint i = 0; i <= currentLastTokenId ; i++){
+            resultArray[i] = MarketToken(  
+                i,
+                0,
+                false,
+                payable(_msgSender())
+                );
         }
-        return res;
+        return resultArray;
     }
 
     function McreateDutchAuction(uint _startingPrice,
@@ -433,6 +385,7 @@ contract NftMarketPlace is ReentrancyGuard, ERC2771Recipient{
        _nftId,
         _startingBid);
     }
+
     /// @return listing price
     function getListingPrice() external pure returns(uint){
         return LISTINGPRICE;

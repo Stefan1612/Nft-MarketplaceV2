@@ -28,7 +28,7 @@ error NftMarketPlace__DidNotPayLISTINGPRICE(uint value);
 /// @dev Basic erc721 contract for minting, saving tokenURI and burning tokens  
 // Please NOTE: I've added custom error messages in this version due to gas efficiency BUT due to the unconvential 
 // syntax I have also added the require statements in the comments for an less gas efficient but more readable alternative.
-contract NFT is ERC721URIStorage, ERC2771Recipient {
+contract NFTV2 is ERC721URIStorage, ERC2771Recipient {
 
      // BICONOMY
 
@@ -49,17 +49,26 @@ contract NFT is ERC721URIStorage, ERC2771Recipient {
     using Counters for Counters.Counter;
 
     /// @notice keeping track of tokenIds
-    Counters.Counter private s_tokenIds;
+    Counters.Counter public s_tokenIds;
 
     /// @notice address of the marketplace I want the this type of NFT to interact with
     address private immutable i_marketplace;
     
+
+
     /////////////////////
+
+    /// @notice user Address => All TokenIDs minted by user
+    mapping(address => uint[]) private addressMinted;
+
+    function getMintedTokens() external view returns( uint[] memory) {
+        return addressMinted[_msgSender()];
+    }
 
     /// @notice fee to list a NFT on the marketplace
     uint256 constant public LISTINGPRICE = 0.002 ether;
 
-    /// @notice Market Token that gets minted every time someone mints on our market
+    /* /// @notice Market Token that gets minted every time someone mints on our market
     /// @dev struct representing our MarketToken and its values at any given time
     struct MarketToken {
         address nftContractAddress; // not needed anymore?
@@ -70,10 +79,10 @@ contract NFT is ERC721URIStorage, ERC2771Recipient {
         address payable owner;
         address payable seller;
         address minter;
-    }
+    } */
 
     /// @notice indexing from ID to the associated market Token
-    mapping(uint256 => MarketToken) public idToMarketToken;
+    /* mapping(uint256 => MarketToken) public idToMarketToken; */
 
     ////////////////////
 
@@ -107,7 +116,7 @@ contract NFT is ERC721URIStorage, ERC2771Recipient {
 
         if(msg.value != LISTINGPRICE ){
             revert NftMarketPlace__DidNotPayLISTINGPRICE( msg.value);
-        }
+        } 
 
 
         // incrementing the id everytime after minting
@@ -124,10 +133,20 @@ contract NFT is ERC721URIStorage, ERC2771Recipient {
         // ERC721 setApprovalForAll to give marketplace access 
         setApprovalForAll(i_marketplace, true);
 
-        /////////////////
+        /////////////////   
+
+        addressMinted[_msgSender()].push(currentTokenId);
 
 
-        /// @dev create MarketToken with current ID and save inside mapping
+        /// @dev we do not to worry about potential reentrancy or denial of service attack
+        // because the receiver address is our marketplace and we are aware of no potential 
+        // security issues in the fallback/receive function and/or blocking the receive of ether through standard txs
+
+        (bool success, ) = i_marketplace.call{value: msg.value}("");
+
+        require(success, "listingPrice transfer wasn't successfull");
+
+       /*  /// @dev create MarketToken with current ID and save inside mapping
         idToMarketToken[currentTokenId] = MarketToken(
             address(this),
             currentTokenId,
@@ -138,13 +157,14 @@ contract NFT is ERC721URIStorage, ERC2771Recipient {
             _msgSender()
         );
 
+        
+
+
         /// @dev adding listing price to contract s_profits
-        // send to marketplace - no reentracy security issue, s_profits += msg.value;
+        // send to marketplace - no reentracy security issue, s_profits += msg.value; */
         emit marketItemCreated(address(this), currentTokenId, 0, false, _msgSender(),address(0),_msgSender());
 
         ///////////////////
-
-
 
         return currentTokenId;
     }
