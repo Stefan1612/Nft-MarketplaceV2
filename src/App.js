@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 
 // UI components Library
-import { Box, ThemeProvider, Button } from "@mui/material";
+import { Box, ThemeProvider, Button, TextField } from "@mui/material";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,8 +38,8 @@ import Header from "./Components/Header";
 // Smart contract data
 
 // ABI's
-import NFT from "./config/contracts/NFT.json";
-import NftMarketPlace from "./config/contracts/NftMarketPlace.json";
+import NFTV2 from "./config/contracts/NFTV2.json";
+import NftMarketPlaceV2 from "./config/contracts/NftMarketPlaceV2.json";
 
 // addresses
 import ContractAddress from "./config/contracts/map.json";
@@ -135,33 +135,33 @@ function App() {
 
   // market
   const eventContractMarket = new ethers.Contract(
-    ContractAddress[5].NftMarketPlace,
-    NftMarketPlace.abi,
+    ContractAddress[5].NftMarketPlaceV2,
+    NftMarketPlaceV2.abi,
     //infuraProvider //
     provider
   );
   //nft
   const eventContractNFT = new ethers.Contract(
     ContractAddress[5].NFT,
-    NFT.abi,
+    NFTV2.abi,
     //infuraProvider //
     provider
   );
   const eventContractMarketInfura = new ethers.Contract(
-    ContractAddress[5].NftMarketPlace,
-    NftMarketPlace.abi,
+    ContractAddress[5].NftMarketPlaceV2,
+    NftMarketPlaceV2.abi,
     infuraProvider
   );
   const eventContractNFTInfura = new ethers.Contract(
     ContractAddress[5].NFT,
-    NFT.abi,
+    NFTV2.abi,
     infuraProvider
   );
   //signer calls
   //market
   const signerContractMarket = new ethers.Contract(
-    ContractAddress[5].NftMarketPlace,
-    NftMarketPlace.abi,
+    ContractAddress[5].NftMarketPlaceV2,
+    NftMarketPlaceV2.abi,
     signer
   );
   //NFT
@@ -170,17 +170,22 @@ function App() {
 
   //side loaded
   useEffect(() => {
-    loadOnSaleNFTs();
-    loadOwnNFTs(); // user provider
-    loadMintedNFTs(); // user provider
+    /*  loadOnSaleNFTs(); */
+    /* loadOwnNFTs(); */
+    // user provider
+    /* loadMintedNFTs(); */
+    // user provider
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   //user connected with one of web3modal's providers
   useEffect(() => {
-    loadOnSaleNFTs(); // infura provider
-    loadOwnNFTs(); // user provider
-    loadMintedNFTs(); // user provider
+    /* loadOnSaleNFTs(); */
+    // infura provider
+    /* loadOwnNFTs(); */
+    // user provider
+    /* loadMintedNFTs(); */
+    // user provider
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProviderSet]);
 
@@ -206,9 +211,9 @@ function App() {
 
     if (!instance) {
       await web3Modal.clearCachedProvider();
-
+      console.log("1");
       instance_M = await web3Modal.connect();
-
+      console.log("2");
       setInstance(instance_M);
       const provider_M = new ethers.providers.Web3Provider(instance_M);
       let signer_M = provider_M.getSigner();
@@ -414,9 +419,9 @@ function App() {
           tokenId: index.tokenId,
           price: ethers.utils.formatUnits(index.price.toString(), "ether"),
           onSale: index.onSale,
-          owner: index.owner,
+          /* owner: index.owner, */
           seller: index.seller,
-          minter: index.minter,
+          /* minter: index.minter, */
           image: meta.data.image,
           name: meta.data.name,
           description: meta.data.description,
@@ -456,9 +461,9 @@ function App() {
             tokenId: index.tokenId,
             price: ethers.utils.formatUnits(index.price.toString(), "ether"),
             onSale: index.onSale,
-            owner: index.owner,
+            /* owner: index.owner, */
             seller: index.seller,
-            minter: index.minter,
+            /* minter: index.minter, */
             image: meta.data.image,
             name: meta.data.name,
             description: meta.data.description,
@@ -477,7 +482,12 @@ function App() {
 
   async function loadMintedNFTs() {
     if (isProviderSet && network.chainId === 5) {
-      let data = await signerContractMarket.fetchTokensMintedByCaller();
+      const signerContractNFT = new ethers.Contract(
+        ContractAddress[5].NFTV2,
+        NFTV2.abi,
+        signer
+      );
+      let data = await signerContractNFT.fetchTokensMintedByCaller();
 
       let tokenData = await axiosGetTokenData(data);
 
@@ -493,37 +503,51 @@ function App() {
     price = ethers.utils.parseEther(price);
     /* let tx = */ await signerContractMarket.buyMarketToken(
       id,
-      ContractAddress[5].NFT,
+      /*  ContractAddress[5].NFT, */
       {
         value: price,
       }
     );
   }
-
+  async function changeNftAddress(/* _newNftAddress */) {
+    await signerContractMarket.setNftAddress(
+      newNftAddress /* "0xF29d1C072Ec229a24D2f21843e2306288448E40D" */
+    );
+  }
   async function sellNFT(marketItem) {
     const signer = provider.getSigner();
     let contract = new ethers.Contract(
-      ContractAddress[5].NftMarketPlace,
-      NftMarketPlace.abi,
+      ContractAddress[5].NftMarketPlaceV2,
+      NftMarketPlaceV2.abi,
       signer
     );
     const nftContract = new ethers.Contract(
       ContractAddress[5].NFT,
-      NFT.abi,
+      NFTV2.abi,
       signer
     );
     let id = marketItem.tokenId;
     id = id.toNumber();
     await nftContract.setApprovalForAll(
-      ContractAddress[5].NftMarketPlace,
+      ContractAddress[5].NftMarketPlaceV2,
       true
     );
-    /* let tx = */ await contract.saleMarketToken(
+    /* let tx = */ await contract.sellMarketToken(
       id,
-      previewPriceTwo,
-      ContractAddress[5].NFT
+      previewPriceTwo /* ,
+      ContractAddress[5].NFT */
     );
   }
+
+  const [newNftAddress, setNewNftAddress] = useState();
+
+  let nftAddressChange;
+
+  const handleChangeNftAddress = (e) => {
+    nftAddressChange = e.target.value;
+    setNewNftAddress(nftAddressChange);
+    console.log(nftAddressChange);
+  };
 
   const [previewPriceTwo, setPreviewPriceTwo] = useState({});
 
@@ -605,27 +629,25 @@ function App() {
     }
   }
 
-  //creating the NFT(first mint at ContractAddress[5].NftMarketPlace, second create market Token at market address)
+  //creating the NFT(first mint at ContractAddress[5].NftMarketPlaceV2, second create market Token at market address)
   async function mintNFT(url) {
     //first step
-
-    let contract = new ethers.Contract(ContractAddress[5].NFT, NFT.abi, signer);
-
-    // let tx =
-    await contract.createNFT(url);
 
     //list the item for sale on marketplace
     let listingPrice = await eventContractMarket.getListingPrice();
     listingPrice = listingPrice.toString();
     /*listingPrice = listingPrice.toNumber()*/
 
-    let transaction = await signerContractMarket.mintMarketToken(
+    let contract = new ethers.Contract(
       ContractAddress[5].NFT,
-      {
-        value: listingPrice,
-      }
+      NFTV2.abi,
+      signer
     );
-    await transaction.wait();
+
+    // let tx =
+    await contract.createNFT(url, {
+      value: listingPrice,
+    });
   }
 
   function changeFormInputDescription(e) {
@@ -759,6 +781,14 @@ function App() {
         >
           Logout
         </Button> */}
+        {/* <TextField
+          variant={"filled"}
+          placeholder="New NFT contract address"
+          type="text"
+          // maxLength="30"
+          onChange={(e) => handleChangeNftAddress(e)}
+        />
+        <Button onClick={(e) => changeNftAddress(e)}>Change NFT address</Button> */}
       </Box>
     </ThemeProvider>
   );

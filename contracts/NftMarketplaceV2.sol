@@ -113,6 +113,7 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
     address private immutable i_dutchFactoryContract;
     address private immutable i_engFactoryContract;
     
+    
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // EVENTS   
@@ -315,7 +316,10 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
     address private nftAddress;
 
     // onlyOwner
-    function setNftAddress(address _nftAddress) external  {
+    function setNftAddress(address _nftAddress) external {
+        if(_msgSender() != i_owner){
+            revert NftMarketPlace__NotOwnerOfContract(_msgSender());
+        }
         nftAddress = _nftAddress;
     }
 

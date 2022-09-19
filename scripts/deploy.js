@@ -9,8 +9,8 @@ const { ethers, network } = hre;
 
 let DutchAuctionFactoryaddress = "";
 let EngAuctionFactoryaddress = "";
-let NftAddress = "";
-let NFTMarketplaceAddress = "";
+let NftAddressV2 = "";
+let NFTMarketplaceAddressV2 = "";
 
 // Biconomy GOERLI forwarder address to enable native meta transactions
 
@@ -37,29 +37,29 @@ async function deploy(contractName, args = []) {
       EngAuctionFactoryaddress = contract.address;
       break;
 
-    case "NftMarketPlace":
-      NFTMarketplaceAddress = contract.address;
+    case "NftMarketPlaceV2":
+      NFTMarketplaceAddressV2 = contract.address;
       break;
 
-    case "NFT":
-      NftAddress = contract.address;
+    case "NFTV2":
+      NftAddressV2 = contract.address;
       break;
     default:
       console.log("Wrong contract");
   }
-  NftAddress = printEtherscanLink(contract.address, chainId);
+  NftAddressV2 = printEtherscanLink(contract.address, chainId);
 }
 
 async function main() {
   await deploy("DutchAuctionFactory");
   await deploy("EngAuctionFactory");
-  await deploy("NftMarketPlace", [
+  await deploy("NftMarketPlaceV2", [
     DutchAuctionFactoryaddress,
     EngAuctionFactoryaddress,
     forwarderAddress,
   ]);
-  await deploy("NFT", [NFTMarketplaceAddress, forwarderAddress]);
-  console.log(NftAddress);
+  await deploy("NFTV2", [NFTMarketplaceAddressV2, forwarderAddress]);
+  console.log(NftAddressV2);
 }
 
 main().catch((error) => {
