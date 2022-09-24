@@ -58,18 +58,6 @@ error NftMarketPlace__CallerIsOwnerOfToken(address caller, uint tokenId);
 // syntax I have also added the require statements in the comments for a less gas efficient but more readable alternative.
 contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
 
-
-    // BICONOMY
-
-    function _msgSender() internal override ( ERC2771Recipient) view returns (address) {
-        return ERC2771Recipient._msgSender();
-    }
-
-    
-    function _msgData() internal override ( ERC2771Recipient) view returns (bytes calldata) {
-        return ERC2771Recipient._msgData();
-    }
-
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Type declarations, State Variables 
@@ -89,14 +77,11 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
     struct MarketToken {
         // can be added to make the contract more dynamic in the future: 
         // address nftContractAddress;
-        
         uint256 tokenId;
         uint256 price;
-        // saving onSale and owner inside one 1 storage slot.
+        // saving onSale and seller inside one 1 storage slot.
         bool onSale;
-        /* address payable owner; */
         address payable seller;
-        /* address minter; */
     }
 
     /// @notice indexing from ID to the associated market Token
@@ -105,15 +90,20 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
     /// @notice s_profits of the contract from "listingPrice" fees
     uint256 private s_profits;
 
+    address private nftAddress  = 0xc14aC1aC78c2437C4e9A2B4CAa708bB197B775c6;
+
     /// @notice contract deployer
     address immutable private i_owner;
+
+
     // versioning needed for biconomy gasless tx
     string public override versionRecipient = "v0.0.1";
     
+
     address private immutable i_dutchFactoryContract;
     address private immutable i_engFactoryContract;
     
-    
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // EVENTS   
@@ -166,6 +156,18 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
     /// @notice used for tips and listingprice from NFT contract to project creator/deployer
     fallback() payable external {
         s_profits += msg.value;
+    }
+
+
+    // BICONOMY
+
+    function _msgSender() internal override ( ERC2771Recipient) view returns (address) {
+        return ERC2771Recipient._msgSender();
+    }
+
+    
+    function _msgData() internal override ( ERC2771Recipient) view returns (bytes calldata) {
+        return ERC2771Recipient._msgData();
     }
 
 
@@ -288,16 +290,9 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
     function fetchAllTokensOnSale() external view returns (MarketToken[] memory) {
 
         /// @dev saving current ID to save some gas
-
-        /// @dev getting the current last token ID of our nft contract. first method only works if there is no
-        // burn() function inside the NFT contract
-        // totalSupply() will indicate a false value if you introduce a burn() function into the nft contract
-        // use the second method with s_tokenIds() instead if you have a burn() function.
-
-        /* uint currentLastTokenId = IERC721(nftAddress).totalSupply(); */
+        /// @dev getting the current last token ID of our nft contract.
         uint256 currentLastTokenId = INFT(nftAddress).s_tokenIds();
         
-
         uint256 tokensOnSale;
         /// @dev loop to get the number of tokens on sale
         for (uint256 i = 1; i <= currentLastTokenId; i++) {
@@ -320,9 +315,9 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
         return res;
     }
 
-    address private nftAddress  = 0xc14aC1aC78c2437C4e9A2B4CAa708bB197B775c6;
+    
 
-    // onlyOwner
+    /// @dev setting the address of the NFT contract we want to interact with
     function setNftAddress(address _nftAddress) external {
         if(_msgSender() != i_owner){
             revert NftMarketPlace__NotOwnerOfContract(_msgSender());
@@ -332,29 +327,31 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
 
 
     /// @notice getting all tokens which currently belong to _msgSender()
-    /// @return array of Market Tokens which currently belong to _msgSender()
+    /// @return array of Market Tokens which currently belong to _msgSender(), currently doesn't track tokens the msg.Sender is 
+    /// selling through the marketplace
     function fetchAllMyTokens() external view returns (MarketToken[] memory) {
-
-        ////////////////////////////
-        
+    
         uint256 sumOfAllCallerNFTs = IERC721(nftAddress).balanceOf(_msgSender());
+        console.log(sumOfAllCallerNFTs);
         uint counter;
        
         MarketToken[] memory resultArray = new MarketToken[](sumOfAllCallerNFTs);
         
         // remove unnessary outputs
-        for(uint i = 0; sumOfAllCallerNFTs <= counter ; i++){
+        for(uint i = 1; counter < sumOfAllCallerNFTs ; i++){
            address owner =  IERC721(nftAddress).ownerOf(i);
            if(owner == _msgSender()){
-            counter++;
+            
             resultArray[counter] = MarketToken(  
                 i,
                 0,
                 false,
                 payable(_msgSender())
                 );
-            }
+                counter++;
+            }   
         }
+        
         return resultArray;
     }
 
@@ -369,7 +366,7 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
         MarketToken[] memory resultArray = new MarketToken[](currentLastTokenId);
 
           // remove unnessary outputs
-        for(uint i = 0; i <= currentLastTokenId ; i++){
+        for(uint i = 1; i <= currentLastTokenId ; i++){
             resultArray[i] = MarketToken(  
                 i,
                 0,

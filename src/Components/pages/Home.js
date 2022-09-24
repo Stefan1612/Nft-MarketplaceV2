@@ -72,9 +72,9 @@ const Home = (props) => {
                               </Typography>
                               <Typography style={{ color: "white" }}>
                                 Current Seller: &nbsp;
-                                {index.owner.substring(0, 5) +
+                                {index.seller.substring(0, 5) +
                                   "..." +
-                                  index.owner.substring(38)}
+                                  index.seller.substring(38)}
                               </Typography>
                               <Button
                                 variant={"outlined"}

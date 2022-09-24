@@ -6,7 +6,7 @@ There were some fixes to the nftMarketplace as well as NFT contract not keeping 
 
 ## Status
 
-The NFT Marketplace is currently running and fully functional on Rinkeby at
+The NFT Marketplace is currently running and fully functional on Goerli at
 
 1. NFT Market:
 
@@ -14,12 +14,30 @@ The NFT Marketplace is currently running and fully functional on Rinkeby at
 
 The Website is online and running at [Website](https://velvety-quokka-fa8702.netlify.app/)
 
+## Local environment set up
+
+1. git clone
+
+2. npm i
+
+3. npm start
+
+4. npx hardhat console --network goerli
+
+5. npx hardhat run scripts/deploy.js --network goerli
+
+6. const contract = await ethers.getContractFactory("NftMarketPlaceV2")
+
+7. const Contract = await contract.attach("[input address from deploying NftMarketPlaceV2 contract (step 5)]")
+
+8. await Contract.setNftAddress("[input address from NFTV2 contract (step 5)]")
+
 ## Video Demo
 
 ## Approach
 
-Running currently on Rinkeby
-A NFT Marketplace running currently on Rinkeby. Let's you mint, sell and buy NFT's. During the minting we store the Metadata on IPFS and only store the TokenURI on-chain.
+Running currently on Goerli
+A NFT Marketplace running currently on Goerli. Let's you mint, sell and buy NFT's. During the minting we store the Metadata on IPFS and only store the TokenURI on-chain.
 
 ## Stack
 

@@ -172,8 +172,8 @@ function App() {
   useEffect(() => {
     // if you remove loadOnSaleNFTs() web3modal stops working
     loadOnSaleNFTs();
-    loadOwnNFTs(); // user provider
-    loadMintedNFTs(); // user provider
+    /* loadOwnNFTs(); // user provider
+    loadMintedNFTs(); // user provider */
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -181,8 +181,8 @@ function App() {
   useEffect(() => {
     // if you remove loadOnSaleNFTs() web3modal stops working
     loadOnSaleNFTs(); // infura provider
-    loadOwnNFTs(); // user provider
-    loadMintedNFTs(); // user provider
+    /*  loadOwnNFTs(); // user provider
+    loadMintedNFTs(); // user provider */
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProviderSet]);
 
@@ -196,7 +196,7 @@ function App() {
     loadOwnNFTs(); // user provider
     loadMintedNFTs(); // user provider
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [network]);
+  }, [network, account]);
 
   const [instance, setInstance] = useState();
 
@@ -303,7 +303,7 @@ function App() {
   }
 
   async function handleNetworkChanged(networkId) {
-    console.log(networkId);
+    /* console.log(networkId); */
     switch (networkId) {
       case "4":
         setNetwork({
@@ -416,9 +416,9 @@ function App() {
           tokenId: index.tokenId,
           price: ethers.utils.formatUnits(index.price.toString(), "ether"),
           onSale: index.onSale,
-          /* owner: index.owner, */
+
           seller: index.seller,
-          /* minter: index.minter, */
+
           image: meta.data.image,
           name: meta.data.name,
           description: meta.data.description,
@@ -433,7 +433,7 @@ function App() {
   async function loadOwnNFTs() {
     if (isProviderSet && network.chainId === 5) {
       let data = await signerContractMarket.fetchAllMyTokens();
-
+      console.log(data);
       let tokenData = await axiosGetTokenData(data);
 
       setOwnNFTs(tokenData);
@@ -445,15 +445,19 @@ function App() {
   async function loadOnSaleNFTs() {
     try {
       let data = await eventContractMarketInfura.fetchAllTokensOnSale();
-
+      /* let num = data[0].tokenId;
+      console.log(num.toNumber()); */
       const tokenData = await Promise.all(
         data.map(async (index) => {
           //getting the TokenURI using the erc721uri method from our nft contract
-          const tokenUri = await eventContractNFTInfura.tokenURI(index.tokenId);
+          let tokenID = index.tokenId;
+          const tokenUri = await eventContractNFTInfura.tokenURI(
+            tokenID.toNumber()
+          );
 
           //getting the metadata of the nft using the URI
           const meta = await axios.get(tokenUri);
-
+          /* console.log(meta); */
           let nftData = {
             tokenId: index.tokenId,
             price: ethers.utils.formatUnits(index.price.toString(), "ether"),
@@ -465,7 +469,7 @@ function App() {
             name: meta.data.name,
             description: meta.data.description,
           };
-
+          console.log(nftData);
           return nftData;
         })
       );
@@ -485,8 +489,32 @@ function App() {
         signer
       );
       let data = await signerContractNFT.getMintedTokens();
+      /* console.log(data); */
+      /* let tokenData = await axiosGetTokenData(data); */
+      const tokenData = await Promise.all(
+        data.map(async (index) => {
+          //getting the TokenURI using the erc721uri method from our nft contract
+          const tokenUri = await eventContractNFT.tokenURI(index);
 
-      let tokenData = await axiosGetTokenData(data);
+          //getting the metadata of the nft using the URI
+          const meta = await axios.get(tokenUri);
+
+          //change the format to something im familiar with
+          let nftData = {
+            tokenId: index,
+            price: 0 /* ethers.utils.formatUnits(index.price.toString(), "ether") */,
+            onSale: false,
+            /* owner: index.owner, */
+            seller: "0x",
+            /* minter: index.minter, */
+            image: meta.data.image,
+            name: meta.data.name,
+            description: meta.data.description,
+          };
+
+          return nftData;
+        })
+      );
 
       setMintedNFTs(tokenData);
       /* let data = await signerContractMarket.fetchTokensMintedByCaller();
@@ -522,6 +550,9 @@ function App() {
       }
     ); */
   }
+
+  // BUG: inputting a [0,]... bugs the website
+  // only [0.]..works as intended
 
   async function sellNFT(marketItem) {
     const signer = provider.getSigner();
