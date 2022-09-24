@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 
 // UI components Library
-import { Box, ThemeProvider, Button } from "@mui/material";
+import { Box, ThemeProvider, Button, TextField } from "@mui/material";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -131,36 +131,42 @@ function App() {
     projectSecret: process.env.REACT_APP_PROJECT_SECRET,
   });
 
+  /* const infuraProvider = new ethers.providers.EtherscanProvider(
+    5
+  ); */
+
+  /* const infuraProvider = new ethers.providers.AlchemyProvider("goerli"); */
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // market
   const eventContractMarket = new ethers.Contract(
-    ContractAddress[5].NftMarketPlaceV2,
+    ContractAddress[5].NftMarketPlace,
     NftMarketPlace.abi,
     //infuraProvider //
     provider
   );
   //nft
   const eventContractNFT = new ethers.Contract(
-    ContractAddress[5].NFTV2,
+    ContractAddress[5].NFT,
     NFT.abi,
     //infuraProvider //
     provider
   );
   const eventContractMarketInfura = new ethers.Contract(
-    ContractAddress[5].NftMarketPlaceV2,
+    ContractAddress[5].NftMarketPlace,
     NftMarketPlace.abi,
     infuraProvider
   );
   const eventContractNFTInfura = new ethers.Contract(
-    ContractAddress[5].NFTV2,
+    ContractAddress[5].NFT,
     NFT.abi,
     infuraProvider
   );
   //signer calls
   //market
   const signerContractMarket = new ethers.Contract(
-    ContractAddress[5].NftMarketPlaceV2,
+    ContractAddress[5].NftMarketPlace,
     NftMarketPlace.abi,
     signer
   );
@@ -170,8 +176,7 @@ function App() {
 
   //side loaded
   useEffect(() => {
-    // if you remove loadOnSaleNFTs() web3modal stops working
-    loadOnSaleNFTs();
+    /* loadOnSaleNFTs(); */
     loadOwnNFTs(); // user provider
     loadMintedNFTs(); // user provider
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -179,8 +184,7 @@ function App() {
 
   //user connected with one of web3modal's providers
   useEffect(() => {
-    // if you remove loadOnSaleNFTs() web3modal stops working
-    loadOnSaleNFTs(); // infura provider
+    /* loadOnSaleNFTs();  */ // infura provider
     loadOwnNFTs(); // user provider
     loadMintedNFTs(); // user provider
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -227,6 +231,28 @@ function App() {
       setIsProviderSet(true);
       console.log("isProvidetSet === true");
     }
+
+    /* if (!instance) {
+      await web3Modal.clearCachedProvider();
+      
+      instance_M = await web3Modal.connect();
+      
+      setInstance(instance_M);
+      const provider_M = new ethers.providers.Web3Provider(instance_M);
+      let signer_M = provider_M.getSigner();
+      setProvider(provider_M);
+      let network_M = await provider_M.getNetwork();
+      setNetwork({
+        chainId: network_M.chainId,
+        name: network_M.name,
+      });
+     
+      setSigner(signer_M);
+      const accounts = await provider_M.send("eth_requestAccounts");
+      setAccount(accounts[0]);
+      setIsProviderSet(true);
+      console.log("isProvidetSet === true");
+    } */
 
     // ------------------------------------
 
@@ -443,9 +469,33 @@ function App() {
   const [onSaleNFTs, setOnSaleNFTs] = useState([]);
 
   async function loadOnSaleNFTs() {
+    /* console.log(await eventContractMarketInfura.fetchAllTokensOnSale());
+    console.log(
+      await fetch(
+        `https://goerli.infura.io/v3/${process.env.REACT_APP_PROJECT_ID}`,
+        {
+          mode: "no-cors",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: {
+            method: "eth_call",
+            params: [
+              {
+                to: "0x8bdb2557f903457fc8cb16dd305c0935e48f6073",
+                data: "0x90effc83",
+              },
+              "latest",
+            ],
+            id: 43,
+            jsonrpc: "2.0",
+          },
+        }
+      )
+    ); */
     try {
       let data = await eventContractMarketInfura.fetchAllTokensOnSale();
-
       const tokenData = await Promise.all(
         data.map(async (index) => {
           //getting the TokenURI using the erc721uri method from our nft contract
@@ -458,9 +508,9 @@ function App() {
             tokenId: index.tokenId,
             price: ethers.utils.formatUnits(index.price.toString(), "ether"),
             onSale: index.onSale,
-            /* owner: index.owner, */
+
             seller: index.seller,
-            /* minter: index.minter, */
+
             image: meta.data.image,
             name: meta.data.name,
             description: meta.data.description,
@@ -480,7 +530,7 @@ function App() {
   async function loadMintedNFTs() {
     if (isProviderSet && network.chainId === 5) {
       const signerContractNFT = new ethers.Contract(
-        ContractAddress[5].NFTV2,
+        ContractAddress[5].NFT,
         NFT.abi,
         signer
       );
@@ -489,11 +539,6 @@ function App() {
       let tokenData = await axiosGetTokenData(data);
 
       setMintedNFTs(tokenData);
-      /* let data = await signerContractMarket.fetchTokensMintedByCaller();
-
-      let tokenData = await axiosGetTokenData(data);
-
-      setMintedNFTs(tokenData); */
     }
   }
 
@@ -510,43 +555,14 @@ function App() {
         value: price,
       }
     );
-    /* let id = marketItem.tokenId;
-    id = id.toNumber();
-    let price = marketItem.price;
-    price = ethers.utils.parseEther(price);
-    await signerContractMarket.buyMarketToken(
-      id,
-      ContractAddress[5].NFTV2,
-      {
-        value: price,
-      }
-    ); */
   }
-
+  /* async function changeNftAddress() {
+    await signerContractMarket.setNftAddress(
+      newNftAddress */ /* "0xc14aC1aC78c2437C4e9A2B4CAa708bB197B775c6" */
+  /* );
+  } */
   async function sellNFT(marketItem) {
     const signer = provider.getSigner();
-    let contract = new ethers.Contract(
-      ContractAddress[5].NftMarketPlaceV2,
-      NftMarketPlace.abi,
-      signer
-    );
-    const nftContract = new ethers.Contract(
-      ContractAddress[5].NFTV2,
-      NFT.abi,
-      signer
-    );
-    let id = marketItem.tokenId;
-    id = id.toNumber();
-    await nftContract.setApprovalForAll(
-      ContractAddress[5].NftMarketPlaceV2,
-      true
-    );
-    /* let tx = */ await contract.sellMarketToken(
-      id,
-      previewPriceTwo /* ,
-      ContractAddress[5].NFT */
-    );
-    /* const signer = provider.getSigner();
     let contract = new ethers.Contract(
       ContractAddress[5].NftMarketPlace,
       NftMarketPlace.abi,
@@ -563,11 +579,11 @@ function App() {
       ContractAddress[5].NftMarketPlace,
       true
     );
-     await contract.saleMarketToken(
+    /* let tx = */ await contract.sellMarketToken(
       id,
-      previewPriceTwo,
-      ContractAddress[5].NFT
-    ); */
+      previewPriceTwo /* ,
+      ContractAddress[5].NFT */
+    );
   }
 
   /* const [newNftAddress, setNewNftAddress] = useState();
@@ -669,35 +685,12 @@ function App() {
     listingPrice = listingPrice.toString();
     /*listingPrice = listingPrice.toNumber()*/
 
-    let contract = new ethers.Contract(
-      ContractAddress[5].NFTV2,
-      NFT.abi,
-      signer
-    );
+    let contract = new ethers.Contract(ContractAddress[5].NFT, NFT.abi, signer);
 
     // let tx =
     await contract.createNFT(url, {
       value: listingPrice,
     });
-    /*  //first step
-
-    let contract = new ethers.Contract(ContractAddress[5].NFT, NFT.abi, signer);
-
-    // let tx =
-    await contract.createNFT(url);
-
-    //list the item for sale on marketplace
-    let listingPrice = await eventContractMarket.getListingPrice();
-    listingPrice = listingPrice.toString();
-    
-
-    let transaction = await signerContractMarket.mintMarketToken(
-      ContractAddress[5].NFT,
-      {
-        value: listingPrice,
-      }
-    );
-    await transaction.wait(); */
   }
 
   function changeFormInputDescription(e) {

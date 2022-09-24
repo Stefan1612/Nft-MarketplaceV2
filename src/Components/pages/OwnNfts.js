@@ -101,12 +101,12 @@ const OwnNfts = (props) => {
                               <Typography component={"p"} variant={"h3"}>
                                 {index.price} Ether
                               </Typography>
-                              <Typography style={{ color: "white" }}>
+                              {/* <Typography style={{ color: "white" }}>
                                 Current Seller: &nbsp;
                                 {index.owner.substring(0, 5) +
                                   "..." +
                                   index.owner.substring(38)}
-                              </Typography>
+                              </Typography> */}
                               <Input
                                 onChange={(e) => props.handleChangePrice(e)}
                                 placeholder="Put in Sale price"
@@ -117,12 +117,12 @@ const OwnNfts = (props) => {
                               >
                                 Sell
                               </Button>
-                              <Button
+                              {/*   <Button
                                 variant={"contained"}
                                 onClick={() => props.deletingNFT(index)}
                               >
                                 Delete
-                              </Button>
+                              </Button> */}
                             </Box>
                           </Paper>
                         </Grid>

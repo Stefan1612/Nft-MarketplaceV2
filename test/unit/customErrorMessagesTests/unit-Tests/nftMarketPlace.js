@@ -200,5 +200,6 @@ describe("NftMarketPlace", function () {
         }
       )
     );
+    console.log(await market.fetchAllTokensOnSale());
   });
 });

@@ -288,8 +288,15 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
     function fetchAllTokensOnSale() external view returns (MarketToken[] memory) {
 
         /// @dev saving current ID to save some gas
+
+        /// @dev getting the current last token ID of our nft contract. first method only works if there is no
+        // burn() function inside the NFT contract
+        // totalSupply() will indicate a false value if you introduce a burn() function into the nft contract
+        // use the second method with s_tokenIds() instead if you have a burn() function.
+
+        /* uint currentLastTokenId = IERC721(nftAddress).totalSupply(); */
         uint256 currentLastTokenId = INFT(nftAddress).s_tokenIds();
-        /* s_tokenIds.current(); */
+        
 
         uint256 tokensOnSale;
         /// @dev loop to get the number of tokens on sale
@@ -313,7 +320,7 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
         return res;
     }
 
-    address private nftAddress;
+    address private nftAddress  = 0xc14aC1aC78c2437C4e9A2B4CAa708bB197B775c6;
 
     // onlyOwner
     function setNftAddress(address _nftAddress) external {
@@ -356,6 +363,7 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
     function fetchAllTokens() external view returns (MarketToken[] memory) {
         
         /// @dev saving current ID to save some gas
+        /* uint currentLastTokenId = IERC721(nftAddress).totalSupply(); */
         uint256 currentLastTokenId = INFT(nftAddress).s_tokenIds();
 
         MarketToken[] memory resultArray = new MarketToken[](currentLastTokenId);

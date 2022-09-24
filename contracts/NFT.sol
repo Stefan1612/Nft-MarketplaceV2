@@ -47,7 +47,7 @@ contract NFT is ERC721URIStorage, ERC2771Recipient {
     using Counters for Counters.Counter;
 
     /// @notice keeping track of tokenIds
-    Counters.Counter private s_tokenIds;
+    Counters.Counter public s_tokenIds;
 
     /// @notice address of the marketplace I want the this type of NFT to interact with
     address private immutable i_marketplace;
