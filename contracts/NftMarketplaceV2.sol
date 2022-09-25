@@ -316,7 +316,6 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
     }
 
     
-
     /// @dev setting the address of the NFT contract we want to interact with
     function setNftAddress(address _nftAddress) external {
         if(_msgSender() != i_owner){
@@ -351,7 +350,6 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
                 counter++;
             }   
         }
-        
         return resultArray;
     }
 
