@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 
 // UI components Library
-import { Box, ThemeProvider, Button } from "@mui/material";
+import { Box, ThemeProvider } from "@mui/material";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@ import { Box, ThemeProvider, Button } from "@mui/material";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
-import Walletlink from "walletlink";
+/* import Walletlink from "walletlink"; */
 import Authereum from "authereum";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -172,8 +172,8 @@ function App() {
   useEffect(() => {
     // if you remove loadOnSaleNFTs() web3modal stops working
     loadOnSaleNFTs();
-    /* loadOwnNFTs(); // user provider
-    loadMintedNFTs(); // user provider */
+    loadOwnNFTs(); // user provider
+    loadMintedNFTs(); // user provider
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -181,8 +181,8 @@ function App() {
   useEffect(() => {
     // if you remove loadOnSaleNFTs() web3modal stops working
     loadOnSaleNFTs(); // infura provider
-    /*  loadOwnNFTs(); // user provider
-    loadMintedNFTs(); // user provider */
+    loadOwnNFTs(); // user provider
+    loadMintedNFTs(); // user provider
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProviderSet]);
 
@@ -198,39 +198,66 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [network, account]);
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // -----------------------------------
+  // Handle wallet connection
+  // -----------------------------------
+
   const [instance, setInstance] = useState();
 
   let instance_M;
 
-  //side loaded
-  async function connectWallet() {
-    /// using web3modal
+  /**
+   * Version 1 (current version): Web3modal connection allows for using multiple wallet
+   *
+   * Version 2: Only allow connecting wallet through Metamask
+   */
 
+  async function connectWallet() {
     if (!instance) {
+      // -----------------------------------
+      // Web3modal; Version 1
+      // -----------------------------------
+
+      // web3modal allows the option of instantly saving provider in cache. We clear it because it can lead to bugs inside chrome
       await web3Modal.clearCachedProvider();
 
+      // web3Modal opens and creates instance
       instance_M = await web3Modal.connect();
-
       setInstance(instance_M);
+
+      // getting provider through web3modal instance
       const provider_M = new ethers.providers.Web3Provider(instance_M);
+
+      // getting signer and saving current provider
       let signer_M = provider_M.getSigner();
       setProvider(provider_M);
+
+      // get and safe current network
       let network_M = await provider_M.getNetwork();
       setNetwork({
         chainId: network_M.chainId,
         name: network_M.name,
       });
-      /* console.log(await provider_M.getNetwork()); */
+
+      // set signer
       setSigner(signer_M);
+
+      // get and set user address
       const accounts = await provider_M.send("eth_requestAccounts");
       setAccount(accounts[0]);
+
+      // disable connecting wallet button
       setIsProviderSet(true);
       console.log("isProvidetSet === true");
     }
 
-    // ------------------------------------
+    // ---------------------------------------------------------------------
 
-    /// using default metamask
+    // -----------------------------------
+    // Metamask; Version 2
+    // -----------------------------------
 
     /* if (typeof window.ethereum !== undefined) {
       const accounts = await window.ethereum.request({
@@ -296,12 +323,15 @@ function App() {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // -----------------------------------
-  // Handle change events
+  // Handle wallet change events
   // -----------------------------------
+
   async function handleChainChanged(chainId) {
     /* console.log(chainId); */
   }
 
+  // handles user changed network ([goerli -> mainnet] e.g.)
+  // saving network name and ID ([goerli; 5] e.g.)
   async function handleNetworkChanged(networkId) {
     /* console.log(networkId); */
     switch (networkId) {
@@ -342,6 +372,7 @@ function App() {
     }
   }
 
+  // handles user changing accounts and saves new address
   async function handleAccountsChanged(accounts) {
     if (accounts.length === 0) {
       // MetaMask is locked or the user has not connected any accounts
@@ -352,6 +383,13 @@ function App() {
       /* window.location.reload(); */
     }
   }
+
+  /**
+   * Listeners for:
+   * 1. network Change
+   * 2. chain change
+   * 3. account change
+   */
 
   useEffect(() => {
     if (instance) {
@@ -368,10 +406,7 @@ function App() {
   }, [instance]);
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  /*  async function gettingNetworkNameChainId() {
-    const network = await provider.getNetwork();
-    setNetwork(network);
-  } */
+  // closing web3modal - instance - clear provider
 
   // Logout helper
   // -----------------------------------
@@ -391,12 +426,55 @@ function App() {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Note: Add smart contract events listener
-   *
-   *
-   *
-   */
+  // -----------------------------------
+  // Handle contract state change events
+  // -----------------------------------
+
+  useEffect(() => {
+    // listens for a new lottery to start
+    eventContractNFTInfura.on(
+      "marketItemCreated",
+      (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
+        console.log("marketItemCreated " + tokenId + " " + price);
+      }
+    );
+    // listens for the random result being successfully generated and the winner of the lottery to be selected
+    eventContractMarketInfura.on(
+      "marketItemOnSale",
+      (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
+        console.log("market item for sale " + tokenId + " " + price);
+      }
+    );
+    // event to listen for new participants entering the lottery
+    eventContractMarketInfura.on(
+      "marketItemBought",
+      (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
+        console.log("market item bought " + tokenId + " " + price);
+      }
+    );
+
+    //removing all old event Listeners
+    return () => {
+      eventContractNFTInfura.removeListener(
+        "marketItemCreated",
+        (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
+          console.log("marketItemCreated " + tokenId + " " + price);
+        }
+      );
+      eventContractMarketInfura.removeListener(
+        "marketItemOnSale",
+        (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
+          console.log("market item bought " + tokenId + " " + price);
+        }
+      );
+      eventContractMarketInfura.removeListener(
+        "marketItemBought",
+        (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
+          console.log("market item for sale " + tokenId + " " + price);
+        }
+      );
+    }; // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -445,8 +523,7 @@ function App() {
   async function loadOnSaleNFTs() {
     try {
       let data = await eventContractMarketInfura.fetchAllTokensOnSale();
-      /* let num = data[0].tokenId;
-      console.log(num.toNumber()); */
+
       const tokenData = await Promise.all(
         data.map(async (index) => {
           //getting the TokenURI using the erc721uri method from our nft contract
@@ -457,14 +534,12 @@ function App() {
 
           //getting the metadata of the nft using the URI
           const meta = await axios.get(tokenUri);
-          /* console.log(meta); */
+
           let nftData = {
             tokenId: index.tokenId,
             price: ethers.utils.formatUnits(index.price.toString(), "ether"),
             onSale: index.onSale,
-            /* owner: index.owner, */
             seller: index.seller,
-            /* minter: index.minter, */
             image: meta.data.image,
             name: meta.data.name,
             description: meta.data.description,
