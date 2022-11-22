@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 
 // UI components Library
-import { Box, ThemeProvider } from "@mui/material";
+import { Box, ThemeProvider, Button } from "@mui/material";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -106,7 +106,7 @@ function App() {
   const web3Modal = new Web3Modal({
     network: "goerli",
     theme: "dark", // optional
-    cacheProvider: false,
+    cacheProvider: true,
     providerOptions,
   });
 
@@ -410,7 +410,7 @@ function App() {
 
   // Logout helper
   // -----------------------------------
-  /* async function logout() {
+  async function logout() {
     web3Modal?.clearCachedProvider();
     if (
       instance &&
@@ -420,7 +420,8 @@ function App() {
       await instance.currentProvider.close();
     }
     web3Modal.clearCachedProvider();
-  } */
+    window.location.reload();
+  }
 
   // -----------------------------------
 
@@ -431,21 +432,20 @@ function App() {
   // -----------------------------------
 
   useEffect(() => {
-    // listens for a new lottery to start
     eventContractNFTInfura.on(
       "marketItemCreated",
       (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
         console.log("marketItemCreated " + tokenId + " " + price);
       }
     );
-    // listens for the random result being successfully generated and the winner of the lottery to be selected
+
     eventContractMarketInfura.on(
       "marketItemOnSale",
       (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
         console.log("market item for sale " + tokenId + " " + price);
       }
     );
-    // event to listen for new participants entering the lottery
+
     eventContractMarketInfura.on(
       "marketItemBought",
       (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
@@ -845,7 +845,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Box>
-        <Header account={account} />
+        <Header account={account} logout={logout} />
 
         <link
           rel="stylesheet"
@@ -928,15 +928,7 @@ function App() {
             }
           />
         </Routes>
-        {/*  <Button
-          size="small"
-          onClick={async () => {
-            await web3Modal?.clearCachedProvider();
-            logout();
-          }}
-        >
-          Logout
-        </Button> */}
+
         {/* <TextField
           variant={"filled"}
           placeholder="New NFT contract address"

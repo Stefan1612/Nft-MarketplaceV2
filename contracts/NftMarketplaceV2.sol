@@ -90,7 +90,7 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
     /// @notice s_profits of the contract from "listingPrice" fees
     uint256 private s_profits;
 
-    address private nftAddress  = 0xc14aC1aC78c2437C4e9A2B4CAa708bB197B775c6;
+    address private nftAddress  = 0x0000000000000000000000000000000000000000;
 
     /// @notice contract deployer
     address immutable private i_owner;

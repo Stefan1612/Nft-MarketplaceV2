@@ -31,6 +31,21 @@ import Stack from "@mui/material/Stack";
 //
 import { Link } from "react-router-dom";
 
+//////////////
+
+import ListSubheader from "@mui/material/ListSubheader";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Collapse from "@mui/material/Collapse";
+import InboxIcon from "@mui/icons-material/MoveToInbox";
+import DraftsIcon from "@mui/icons-material/Drafts";
+import SendIcon from "@mui/icons-material/Send";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import StarBorder from "@mui/icons-material/StarBorder";
+
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -170,10 +185,13 @@ export default function PrimarySearchAppBar(props) {
   );
   // menu begin
   const [open, setOpen] = React.useState(false);
+  const [openTwo, setOpenTwo] = React.useState(true);
   const anchorRef = React.useRef(null);
-
+  const handleClick = () => {
+    setOpenTwo(!openTwo);
+  };
   const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
+    setOpen(/* (prevOpen) => !prevOpen */ true);
   };
 
   const handleClose = (event) => {
@@ -248,6 +266,63 @@ export default function PrimarySearchAppBar(props) {
                             aria-labelledby="composition-button"
                             onKeyDown={handleListKeyDown}
                           >
+                            {" "}
+                            <List
+                              sx={{
+                                width: "100%",
+                                maxWidth: 360,
+                                bgcolor: "background.paper",
+                              }}
+                              component="nav"
+                              aria-labelledby="nested-list-subheader"
+                              subheader={
+                                <ListSubheader
+                                  component="div"
+                                  id="nested-list-subheader"
+                                >
+                                  Our Services!
+                                </ListSubheader>
+                              }
+                            >
+                              <ListItemButton>
+                                <ListItemText>
+                                  <Link
+                                    to="/"
+                                    className="Nav "
+                                    style={{
+                                      textDecoration: "none",
+                                      color: "white",
+                                    }}
+                                  >
+                                    <MenuItem onClick={handleClose}>
+                                      Main
+                                    </MenuItem>
+                                  </Link>
+                                </ListItemText>
+                              </ListItemButton>{" "}
+                              <ListItemButton onClick={handleClick}>
+                                <ListItemIcon>
+                                  <InboxIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Inbox" />
+                                {open ? <ExpandLess /> : <ExpandMore />}
+                              </ListItemButton>
+                              {/*  <ListItemButton>
+                                <ListItemText primary="Inbox" />
+                                {openTwo ? <ExpandLess /> : <ExpandMore />}
+                              </ListItemButton> */}
+                              <Collapse
+                                in={openTwo}
+                                timeout="auto"
+                                unmountOnExit
+                              >
+                                <List component="div" disablePadding>
+                                  <ListItemButton sx={{ pl: 4 }}>
+                                    <ListItemText primary="Starred" />
+                                  </ListItemButton>
+                                </List>
+                              </Collapse>
+                            </List>{" "}
                             <Link
                               to="/"
                               className="Nav "
@@ -309,7 +384,7 @@ export default function PrimarySearchAppBar(props) {
                                 NftHistory
                               </MenuItem>
                             </Link>
-                            <MenuItem onClick={handleClose}>Logout</MenuItem>
+                            <MenuItem onClick={props.logout}>Logout</MenuItem>
                           </MenuList>
                         </ClickAwayListener>
                       </Paper>
@@ -385,6 +460,10 @@ export default function PrimarySearchAppBar(props) {
               <MoreIcon />
             </IconButton>
           </Box>
+
+          {
+            ////////////////////////////
+          }
         </Toolbar>
       </AppBar>
       {renderMobileMenu}
