@@ -185,13 +185,27 @@ export default function PrimarySearchAppBar(props) {
   );
   // menu begin
   const [open, setOpen] = React.useState(false);
-  const [openTwo, setOpenTwo] = React.useState(true);
+  const [openTwo, setOpenTwo] = React.useState(false);
+  const [openThree, setOpenThree] = React.useState(false);
+  const [openFour, setOpenFour] = React.useState(false);
+
   const anchorRef = React.useRef(null);
-  const handleClick = () => {
+
+  const handleClickOne = () => {
     setOpenTwo(!openTwo);
   };
+  const handleClickThree = () => {
+    setOpenThree(openThree);
+  };
+  const handleClickFour = () => {
+    setOpenFour(!openFour);
+  };
+
   const handleToggle = () => {
     setOpen(/* (prevOpen) => !prevOpen */ true);
+  };
+  const closeSections = () => {
+    setOpen((prevOpen) => !prevOpen);
   };
 
   const handleClose = (event) => {
@@ -267,7 +281,7 @@ export default function PrimarySearchAppBar(props) {
                             onKeyDown={handleListKeyDown}
                           >
                             {" "}
-                            <List
+                            {/*  <List
                               sx={{
                                 width: "100%",
                                 maxWidth: 360,
@@ -283,107 +297,141 @@ export default function PrimarySearchAppBar(props) {
                                   Our Services!
                                 </ListSubheader>
                               }
+                            > */}
+                            <Link
+                              to="/"
+                              className="Nav "
+                              style={{
+                                textDecoration: "none",
+                                color: "white",
+                              }}
                             >
-                              <ListItemButton>
-                                <ListItemText>
+                              <MenuItem onClick={handleClose}>Main</MenuItem>
+                            </Link>
+                            <ListItemButton onClick={handleClickOne}>
+                              <ListItemIcon>
+                                <InboxIcon />
+                              </ListItemIcon>
+                              <ListItemText primary="NFT Marketplace" />
+                              {openTwo ? <ExpandLess /> : <ExpandMore />}
+                            </ListItemButton>
+                            <Collapse in={openTwo} timeout="auto" unmountOnExit>
+                              <List component="div" disablePadding>
+                                {/*  <ListItemButton sx={{ pl: 4 }}>
+                                    <ListItemText primary="Starred" />
+                                  </ListItemButton>{" "} */}
+                                <Link
+                                  to="/MintedTokens"
+                                  className="Nav"
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "white",
+                                  }}
+                                >
+                                  <MenuItem onClick={handleClose}>
+                                    Minted Tokens
+                                  </MenuItem>
+                                </Link>
+                                <Link
+                                  to="/MintForm"
+                                  className="Nav"
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "white",
+                                  }}
+                                >
+                                  <MenuItem onClick={handleClose}>
+                                    Mint NFT
+                                  </MenuItem>
+                                </Link>
+                                <Link
+                                  to="/OwnNfts"
+                                  className="Nav"
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "white",
+                                  }}
+                                >
+                                  <MenuItem onClick={handleClose}>
+                                    Owned Nft list
+                                  </MenuItem>
+                                </Link>
+                                <Link
+                                  to="/NftHistory"
+                                  className="Nav"
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "white",
+                                  }}
+                                >
+                                  <MenuItem onClick={handleClose}>
+                                    NftHistory
+                                  </MenuItem>
+                                </Link>
+                              </List>
+                            </Collapse>
+                            {/* </List> */}
+                            <List>
+                              <ListItemButton onClick={handleClickThree}>
+                                <ListItemIcon>
+                                  <InboxIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Buy Cryptocurrencies" />
+                                {openThree ? <ExpandLess /> : <ExpandMore />}
+                              </ListItemButton>{" "}
+                              {/*  <ListItemButton>
+                                <ListItemText primary="Inbox" />
+                                {openTwo ? <ExpandLess /> : <ExpandMore />}
+                              </ListItemButton> */}
+                              <Collapse
+                                in={openThree}
+                                timeout="auto"
+                                unmountOnExit
+                              >
+                                <List component="div" disablePadding>
+                                  {" "}
                                   <Link
-                                    to="/"
-                                    className="Nav "
+                                    to="/TransakGateway"
+                                    className="Nav"
                                     style={{
                                       textDecoration: "none",
                                       color: "white",
                                     }}
                                   >
                                     <MenuItem onClick={handleClose}>
-                                      Main
+                                      Buy Cryptocurrencies with 1 click!
                                     </MenuItem>
                                   </Link>
-                                </ListItemText>
-                              </ListItemButton>{" "}
-                              <ListItemButton onClick={handleClick}>
+                                </List>
+                              </Collapse>{" "}
+                            </List>
+                            <List>
+                              <ListItemButton onClick={handleClickFour}>
                                 <ListItemIcon>
                                   <InboxIcon />
                                 </ListItemIcon>
-                                <ListItemText primary="Inbox" />
-                                {open ? <ExpandLess /> : <ExpandMore />}
-                              </ListItemButton>
-                              {/*  <ListItemButton>
-                                <ListItemText primary="Inbox" />
-                                {openTwo ? <ExpandLess /> : <ExpandMore />}
-                              </ListItemButton> */}
+                                <ListItemText primary="Wallet" />
+                                {openFour ? <ExpandLess /> : <ExpandMore />}
+                              </ListItemButton>{" "}
                               <Collapse
-                                in={openTwo}
+                                in={openFour}
                                 timeout="auto"
                                 unmountOnExit
                               >
-                                <List component="div" disablePadding>
-                                  <ListItemButton sx={{ pl: 4 }}>
-                                    <ListItemText primary="Starred" />
-                                  </ListItemButton>
-                                </List>
+                                <Link
+                                  to="/BiconomyCrossChain"
+                                  className="Nav"
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "white",
+                                  }}
+                                >
+                                  <MenuItem onClick={handleClose}>
+                                    1 Click Cross Chain transfer
+                                  </MenuItem>
+                                </Link>
                               </Collapse>
-                            </List>{" "}
-                            <Link
-                              to="/"
-                              className="Nav "
-                              style={{ textDecoration: "none", color: "white" }}
-                            >
-                              <MenuItem onClick={handleClose}>Main</MenuItem>
-                            </Link>
-                            <Link
-                              to="/MintedTokens"
-                              className="Nav"
-                              style={{ textDecoration: "none", color: "white" }}
-                            >
-                              <MenuItem onClick={handleClose}>
-                                Minted Tokens
-                              </MenuItem>
-                            </Link>
-                            <Link
-                              to="/MintForm"
-                              className="Nav"
-                              style={{ textDecoration: "none", color: "white" }}
-                            >
-                              <MenuItem onClick={handleClose}>
-                                Mint NFT
-                              </MenuItem>
-                            </Link>
-                            <Link
-                              to="/OwnNfts"
-                              className="Nav"
-                              style={{ textDecoration: "none", color: "white" }}
-                            >
-                              <MenuItem onClick={handleClose}>
-                                Owned Nft list
-                              </MenuItem>
-                            </Link>
-                            <Link
-                              to="/BiconomyCrossChain"
-                              className="Nav"
-                              style={{ textDecoration: "none", color: "white" }}
-                            >
-                              <MenuItem onClick={handleClose}>
-                                1 Click Cross Chain transfer
-                              </MenuItem>
-                            </Link>
-                            <Link
-                              to="/TransakGateway"
-                              className="Nav"
-                              style={{ textDecoration: "none", color: "white" }}
-                            >
-                              <MenuItem onClick={handleClose}>
-                                Buy Cryptocurrencies with 1 click!
-                              </MenuItem>
-                            </Link>
-                            <Link
-                              to="/NftHistory"
-                              className="Nav"
-                              style={{ textDecoration: "none", color: "white" }}
-                            >
-                              <MenuItem onClick={handleClose}>
-                                NftHistory
-                              </MenuItem>
-                            </Link>
+                            </List>
                             <MenuItem onClick={props.logout}>Logout</MenuItem>
                           </MenuList>
                         </ClickAwayListener>
