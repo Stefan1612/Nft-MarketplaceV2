@@ -27,7 +27,7 @@ error NftMarketPlace__DidNotPayLISTINGPRICE(uint value);
 /// @notice Contract used to create new NFT's and keep state of previous ones
 /// @dev Basic erc721 contract for minting, saving tokenURI and burning tokens  
 // Please NOTE: I've added custom error messages in this version due to gas efficiency BUT due to the unconvential 
-// syntax I have also added the require statements in the comments for an less gas efficient but more readable alternative.
+// syntax I have also added the require statements in the comments for a less gas efficient but more readable alternative.
 contract NFTV2 is ERC721URIStorage, ERC2771Recipient {
 
      // BICONOMY

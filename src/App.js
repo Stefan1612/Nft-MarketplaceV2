@@ -273,7 +273,7 @@ function App() {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // -----------------------------------
-  // Only metamask version
+  // Only metamask version - Handle wallet change events
   // -----------------------------------
 
   //on chain change
@@ -768,42 +768,27 @@ function App() {
 
   //creating the NFT(first mint at ContractAddress[5].NftMarketPlace, second create market Token at market address)
   async function mintNFT(url) {
-    //first step
-
-    //list the item for sale on marketplace
-    let listingPrice = await eventContractMarket.getListingPrice();
-    listingPrice = listingPrice.toString();
-    /*listingPrice = listingPrice.toNumber()*/
-
-    let contract = new ethers.Contract(
-      ContractAddress[5].NFTV2,
-      NFT.abi,
-      signer
-    );
-
     // let tx =
-    await contract.createNFT(url, {
-      value: listingPrice,
-    });
-    /*  //first step
+    if (account) {
+      //first step
 
-    let contract = new ethers.Contract(ContractAddress[5].NFT, NFT.abi, signer);
+      //list the item for sale on marketplace
+      let listingPrice = await eventContractMarket.getListingPrice();
+      listingPrice = listingPrice.toString();
+      /*listingPrice = listingPrice.toNumber()*/
 
-    // let tx =
-    await contract.createNFT(url);
+      let contract = new ethers.Contract(
+        ContractAddress[5].NFTV2,
+        NFT.abi,
+        signer
+      );
 
-    //list the item for sale on marketplace
-    let listingPrice = await eventContractMarket.getListingPrice();
-    listingPrice = listingPrice.toString();
-    
-
-    let transaction = await signerContractMarket.mintMarketToken(
-      ContractAddress[5].NFT,
-      {
+      await contract.createNFT(url, {
         value: listingPrice,
-      }
-    );
-    await transaction.wait(); */
+      });
+    } else {
+      window.alert("You need to connect your wallet first");
+    }
   }
 
   function changeFormInputDescription(e) {
@@ -817,28 +802,28 @@ function App() {
     if (provider) {
       if (network.chainId === 5) {
         window.alert("already connected to Goerli!");
-        return;
+      } else {
+        instance.request({
+          /* method: "wallet_addEthereumChain", */
+          method: "wallet_switchEthereumChain",
+          params: [
+            { chainId: "0x5" },
+            /*  {
+              chainId: "0x5",
+              rpcUrls: [
+                "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+              ],
+              chainName: "Goerli",
+              nativeCurrency: {
+                name: "Ethereum",
+                symbol: "ETH",
+                decimals: 18,
+              },
+              blockExplorerUrls: ["https://goerli.etherscan.io"],
+            }, */
+          ],
+        });
       }
-      instance.request({
-        /* method: "wallet_addEthereumChain", */
-        method: "wallet_switchEthereumChain",
-        params: [
-          { chainId: "0x5" },
-          /*  {
-            chainId: "0x5",
-            rpcUrls: [
-              "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-            ],
-            chainName: "Goerli",
-            nativeCurrency: {
-              name: "Ethereum",
-              symbol: "ETH",
-              decimals: 18,
-            },
-            blockExplorerUrls: ["https://goerli.etherscan.io"],
-          }, */
-        ],
-      });
     }
   }
 

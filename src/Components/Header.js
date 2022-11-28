@@ -195,7 +195,7 @@ export default function PrimarySearchAppBar(props) {
     setOpenTwo(!openTwo);
   };
   const handleClickThree = () => {
-    setOpenThree(openThree);
+    setOpenThree(!openThree);
   };
   const handleClickFour = () => {
     setOpenFour(!openFour);
@@ -306,7 +306,9 @@ export default function PrimarySearchAppBar(props) {
                                 color: "white",
                               }}
                             >
-                              <MenuItem onClick={handleClose}>Main</MenuItem>
+                              <MenuItem onClick={handleClose}>
+                                Main/Login and buy NFTs
+                              </MenuItem>
                             </Link>
                             <ListItemButton onClick={handleClickOne}>
                               <ListItemIcon>
@@ -378,32 +380,26 @@ export default function PrimarySearchAppBar(props) {
                                 </ListItemIcon>
                                 <ListItemText primary="Buy Cryptocurrencies" />
                                 {openThree ? <ExpandLess /> : <ExpandMore />}
-                              </ListItemButton>{" "}
-                              {/*  <ListItemButton>
-                                <ListItemText primary="Inbox" />
-                                {openTwo ? <ExpandLess /> : <ExpandMore />}
-                              </ListItemButton> */}
+                              </ListItemButton>
+
                               <Collapse
                                 in={openThree}
                                 timeout="auto"
                                 unmountOnExit
                               >
-                                <List component="div" disablePadding>
-                                  {" "}
-                                  <Link
-                                    to="/TransakGateway"
-                                    className="Nav"
-                                    style={{
-                                      textDecoration: "none",
-                                      color: "white",
-                                    }}
-                                  >
-                                    <MenuItem onClick={handleClose}>
-                                      Buy Cryptocurrencies with 1 click!
-                                    </MenuItem>
-                                  </Link>
-                                </List>
-                              </Collapse>{" "}
+                                <Link
+                                  to="/TransakGateway"
+                                  className="Nav"
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "white",
+                                  }}
+                                >
+                                  <MenuItem onClick={handleClose}>
+                                    Buy Cryptocurrencies with 1 click!
+                                  </MenuItem>
+                                </Link>
+                              </Collapse>
                             </List>
                             <List>
                               <ListItemButton onClick={handleClickFour}>
