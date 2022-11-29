@@ -827,6 +827,18 @@ function App() {
     }
   }
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // -----------------------------------
+  // Restrict user access to certain functions while...
+  // -----------------------------------
+
+  /// check if the user connected his wallet
+  function checkIfUserLoggedIn() {}
+
+  /// check if user is connected to the correct network(where NFT-marketplace/Nft contracts/... are deployed)
+  function checkIfUserConnectedToCorrectNetwork() {}
+
   return (
     <ThemeProvider theme={theme}>
       <Box>

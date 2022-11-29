@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import transakSDK from "@transak/transak-sdk";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 /* import axios from "axios"; */
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography, Container } from "@mui/material";
 const Transak = () => {
   const [transakSucceed, setTransakSucceed] = useState(false);
   let transak = new transakSDK({
@@ -37,35 +38,54 @@ const Transak = () => {
 
   return (
     <Box
-      style={{
-        textAlign: "center",
-      }}
+      id="background"
+      sx={{ backgroundColor: "#212121", minHeight: "100vh" }}
+      allow="payment"
     >
-      <Box marginTop={"5vh"}>
-        <Typography component={"h1"} variant={"h2"}>
-          Want to buy your favourite Crypto Currency?
-        </Typography>
-      </Box>{" "}
-      <Box>
-        <Typography component={"p"} variant={"h5"}>
-          You can easily buy yourself some crypto with One Click using Transak.
-        </Typography>
-      </Box>
-      <Button
-        style={{
-          backgroundColor: "rgb(106, 160, 182)",
-          border: "1px solid",
-          textAlign: "center",
-          marginTop: "5vh",
-          width: "25vw",
-          height: "10vh",
+      <Box
+        sx={{
+          color: "white",
+          paddingLeft: "5px",
         }}
-        variant="contained"
-        onClick={(e) => startTransak()}
       >
-        Open transak
-      </Button>
-      {transakSucceed && <Box>Succeed</Box>}
+        <ArrowUpwardIcon sx={{ fontSize: 60 }} />
+        Check our Services!
+      </Box>
+      <Container allow="payment">
+        <Box
+          style={{
+            textAlign: "center",
+          }}
+        >
+          <Box marginTop={"5vh"}>
+            <Typography component={"h1"} variant={"h2"} sx={{ color: "white" }}>
+              Want to buy your favourite Crypto Currency?
+            </Typography>
+          </Box>{" "}
+          <Box>
+            <Typography component={"p"} variant={"h5"} sx={{ color: "white" }}>
+              You can easily buy yourself some crypto with One Click using
+              Transak.
+            </Typography>
+          </Box>
+          <Button
+            allow="payment"
+            style={{
+              backgroundColor: "rgb(106, 160, 182)",
+              border: "1px solid",
+              textAlign: "center",
+              marginTop: "5vh",
+              width: "25vw",
+              height: "10vh",
+            }}
+            variant="contained"
+            onClick={(e) => startTransak()}
+          >
+            Open transak
+          </Button>
+          {transakSucceed && <Box>Succeed</Box>}
+        </Box>
+      </Container>
     </Box>
   );
 };
