@@ -380,6 +380,8 @@ function App() {
     } else if (accounts[0] !== account) {
       setAccount(accounts[0]);
       console.log(accounts[0]);
+      loadMintedNFTs();
+      loadOwnNFTs();
       /* window.location.reload(); */
     }
   }
@@ -768,24 +770,25 @@ function App() {
 
   //creating the NFT(first mint at ContractAddress[5].NftMarketPlace, second create market Token at market address)
   async function mintNFT(url) {
-    // let tx =
-    if (account) {
-      //first step
+    //make sure the user connected his wallet
+    if (checkIfUserLoggedIn()) {
+      //make sure the user is connected to the correct network
+      if (checkIfUserConnectedToCorrectNetwork()) {
+        let listingPrice = await eventContractMarket.getListingPrice();
+        listingPrice = listingPrice.toString();
 
-      //list the item for sale on marketplace
-      let listingPrice = await eventContractMarket.getListingPrice();
-      listingPrice = listingPrice.toString();
-      /*listingPrice = listingPrice.toNumber()*/
+        let contract = new ethers.Contract(
+          ContractAddress[5].NFTV2,
+          NFT.abi,
+          signer
+        );
 
-      let contract = new ethers.Contract(
-        ContractAddress[5].NFTV2,
-        NFT.abi,
-        signer
-      );
-
-      await contract.createNFT(url, {
-        value: listingPrice,
-      });
+        await contract.createNFT(url, {
+          value: listingPrice,
+        });
+      } else {
+        window.alert("Change to the Goerli network");
+      }
     } else {
       window.alert("You need to connect your wallet first");
     }
@@ -834,10 +837,18 @@ function App() {
   // -----------------------------------
 
   /// check if the user connected his wallet
-  function checkIfUserLoggedIn() {}
+  function checkIfUserLoggedIn() {
+    return account;
+  }
 
   /// check if user is connected to the correct network(where NFT-marketplace/Nft contracts/... are deployed)
-  function checkIfUserConnectedToCorrectNetwork() {}
+  function checkIfUserConnectedToCorrectNetwork() {
+    if (network.chainId == 5) {
+      return true;
+    }
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   return (
     <ThemeProvider theme={theme}>
@@ -921,7 +932,14 @@ function App() {
             exact
             path="/NftHistory"
             element={
-              <NftHistory infuraProvider={infuraProvider} account={account} />
+              <NftHistory
+                infuraProvider={infuraProvider}
+                account={account}
+                checkIfUserConnectedToCorrectNetwork={
+                  checkIfUserConnectedToCorrectNetwork
+                }
+                checkIfUserLoggedIn={checkIfUserLoggedIn}
+              />
             }
           />
         </Routes>

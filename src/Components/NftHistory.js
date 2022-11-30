@@ -13,6 +13,8 @@ const NftHistory = ({
   account,
 
   infuraProvider,
+  checkIfUserLoggedIn,
+  checkIfUserConnectedToCorrectNetwork,
 }) => {
   const [transferHistory, setTransferHistory] = useState("");
   const [transferArray, setTransferArray] = useState([]);
@@ -20,12 +22,21 @@ const NftHistory = ({
   async function getCovalentData() {
     console.log("generate Data ran");
 
-    // seems like covalent updated their API's. API call has to be updated in this code
-
-    const url = `https://api.covalenthq.com/v1/42/address/${account}/transfers_v2/?contract-address=${ContractAddress[42].NFT}&key=${process.env.REACT_APP_COVALENT_API_KEY}`;
-    let result = await axios.get(url);
-    console.log(result);
-    setTransferHistory(result);
+    //make sure the user connected his wallet
+    if (checkIfUserLoggedIn()) {
+      //make sure the user is connected to the correct network
+      if (checkIfUserConnectedToCorrectNetwork()) {
+        const url = `https://api.covalenthq.com/v1/5/address/${account}/transfers_v2/?contract-address=${ContractAddress[5].NFTV2}&key=${process.env.REACT_APP_COVALENT_API_KEY}`;
+        let result = await axios.get(url);
+        console.log(result);
+        setTransferHistory(result);
+        console.log("first");
+      } else {
+        window.alert("Change to the Goerli network");
+      }
+    } else {
+      window.alert("You need to connect your wallet first");
+    }
   }
   useEffect(() => {
     if (transferHistory) {
@@ -37,10 +48,11 @@ const NftHistory = ({
   }, [transferHistory]);
 
   function showNftTransactionType(index) {
+    console.log("show transactionType ran");
     if (index.transfers[0].transfer_type === "IN") {
       console.log(index.to_address);
-      let address = ContractAddress[42].NFT;
-      console.log(ContractAddress[42].NFT);
+      let address = ContractAddress[5].NFTV2;
+      console.log(ContractAddress[5].NFTV2);
       if (index.to_address === address.toLowerCase()) {
         return "Token Minted";
       }
@@ -56,6 +68,7 @@ const NftHistory = ({
   const [finalObject, setFinalObject] = useState([]);
 
   async function getData() {
+    console.log("second start");
     let memoryArray = [];
     transferArray.forEach((e) => {
       let result = showNftTransactionType(e);
@@ -75,7 +88,7 @@ const NftHistory = ({
     // saves all transaction objects in order "newest -> oldest"
 
     const contractNFTInfura = new ethers.Contract(
-      ContractAddress[42].NFT,
+      ContractAddress[5].NFTV2,
       NFT.abi,
       infuraProvider
     );
@@ -98,6 +111,7 @@ const NftHistory = ({
     );
     setFinalObject(memoryArray);
     setFinishedFinalObject(true);
+    console.log("second end");
   }
 
   return (
