@@ -8,9 +8,6 @@ import {
 } from "@mui/material";
 import BackgroundImageTwo from "../BackgroundImageTwo";
 const MintForm = (props) => {
-  function consoleLogNetworkID() {
-    console.log(props.networkChain.chainId);
-  }
   return (
     <Box style={{ paddingTop: "15vh", height: "65vh" }}>
       <Box className="d-flex">
