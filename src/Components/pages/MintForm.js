@@ -8,6 +8,9 @@ import {
 } from "@mui/material";
 import BackgroundImageTwo from "../BackgroundImageTwo";
 const MintForm = (props) => {
+  function consoleLogNetworkID() {
+    console.log(props.networkChain.chainId);
+  }
   return (
     <Box style={{ paddingTop: "15vh", height: "65vh" }}>
       <Box className="d-flex">
@@ -62,27 +65,43 @@ const MintForm = (props) => {
             <Input type="file" name="Asset" onChange={props.onChange} />
             <br></br>
             <br></br>
-            <Button
-              variant="outlined"
-              onClick={(e) => props.changeNetworkToGoerli()}
-            >
-              Switch to Goerli!
-            </Button>
-            <Button
-              variant="outlined"
-              sx={{ marginTop: "5px" }}
-              onClick={(e) => props.connectWallet()}
-            >
-              Connect Wallet!
-            </Button>
+            {props.networkChain.chainId !== 5 && props.instance && (
+              <Box>
+                <Typography>
+                  Hey! You are not connected to Goerli. You need to be on the
+                  Goerli network! Change network here:
+                </Typography>
+                <Button
+                  variant="outlined"
+                  onClick={(e) => props.changeNetworkToGoerli()}
+                >
+                  Switch to Goerli!
+                </Button>
+              </Box>
+            )}
 
-            <Button
-              variant={"contained"}
-              sx={{ marginTop: "5px" }}
-              onClick={props.createMarket}
-            >
-              Mint NFT
-            </Button>
+            {props.networkChain.chainId === 5 && props.instance && (
+              <Box>
+                <Button
+                  variant={"contained"}
+                  sx={{ marginTop: "5px" }}
+                  onClick={props.createMarket}
+                >
+                  Mint NFT
+                </Button>
+              </Box>
+            )}
+            {!props.instance && (
+              <Box>
+                <Button
+                  variant="outlined"
+                  sx={{ marginTop: "5px" }}
+                  onClick={(e) => props.connectWallet()}
+                >
+                  Connect Wallet!
+                </Button>
+              </Box>
+            )}
           </div>
         </div>
 

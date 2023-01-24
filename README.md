@@ -12,7 +12,7 @@ The NFT Marketplace is currently running and fully functional on Goerli at
 
 2. NFT:
 
-The Website is online and running at [Website](https://velvety-quokka-fa8702.netlify.app/)
+The Website is online and running at [Website](https://fluffy-moonbeam-06ab85.netlify.app/)
 
 ## Local environment set up
 

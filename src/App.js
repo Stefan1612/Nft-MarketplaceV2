@@ -338,27 +338,34 @@ function App() {
     switch (networkId) {
       case "4":
         setNetwork({
-          chainId: "4",
+          chainId: 4,
           name: "rinkeby",
         });
         break;
 
       case "1":
         setNetwork({
-          chainId: "1",
+          chainId: 1,
           name: "mainnet",
         });
         break;
 
       case "5":
-        setNetwork({
+        setNetwork(
+          /* (prevState) => ( */ {
+            /* ...prevState, */
+            chainId: 5,
+            name: "goerli",
+          } /* ) */
+        );
+        /* setNetwork({
           chainId: "5",
           name: "goerli",
-        });
+        }); */
         break;
       case "42":
         setNetwork({
-          chainId: "42",
+          chainId: 42,
           name: "kovan",
         });
         break;
@@ -369,7 +376,7 @@ function App() {
           name: "",
         });
         window.alert("change Network to Goerli!");
-        console.log("Wrong network");
+        console.log(`Wrong network ${networkId}`);
     }
   }
 
@@ -895,6 +902,9 @@ function App() {
                 fileURL={fileURL}
                 createMarket={createMarket}
                 changeNetworkToGoerli={changeNetworkToGoerli}
+                networkChain={network}
+                connectWallet={connectWallet}
+                instance={instance}
               />
             }
           />
