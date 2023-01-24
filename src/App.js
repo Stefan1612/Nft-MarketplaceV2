@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 
 // UI components Library
+// eslint-disable-next-line
 import { Box, ThemeProvider, Button } from "@mui/material";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -843,7 +844,7 @@ function App() {
 
   /// check if user is connected to the correct network(where NFT-marketplace/Nft contracts/... are deployed)
   function checkIfUserConnectedToCorrectNetwork() {
-    if (network.chainId == 5) {
+    if (network.chainId === 5) {
       return true;
     }
   }
