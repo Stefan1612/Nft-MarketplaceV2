@@ -196,6 +196,7 @@ function App() {
   useEffect(() => {
     loadOwnNFTs(); // user provider
     loadMintedNFTs(); // user provider
+    console.log("network changed and minted and owned NFTs refetched");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [network, account]);
 
@@ -445,20 +446,26 @@ function App() {
     eventContractNFTInfura.on(
       "marketItemCreated",
       (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
+        /*   if (minter === account) { */
+        loadMintedNFTs();
+
+        /*  } */
         console.log("marketItemCreated " + tokenId + " " + price);
       }
     );
 
     eventContractMarketInfura.on(
       "marketItemOnSale",
-      (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
+      (nftContractAddress, tokenId, price, onSale, owner, seller) => {
+        loadOnSaleNFTs();
         console.log("market item for sale " + tokenId + " " + price);
       }
     );
 
     eventContractMarketInfura.on(
       "marketItemBought",
-      (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
+      (nftContractAddress, tokenId, price, onSale, owner, seller) => {
+        loadOwnNFTs();
         console.log("market item bought " + tokenId + " " + price);
       }
     );
@@ -468,19 +475,25 @@ function App() {
       eventContractNFTInfura.removeListener(
         "marketItemCreated",
         (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
+          /*  if (minter === account) { */
+          loadMintedNFTs();
+
+          /*    } */
           console.log("marketItemCreated " + tokenId + " " + price);
         }
       );
       eventContractMarketInfura.removeListener(
         "marketItemOnSale",
-        (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
-          console.log("market item bought " + tokenId + " " + price);
+        (nftContractAddress, tokenId, price, onSale, owner, seller) => {
+          loadOnSaleNFTs();
+          console.log("market item for sale " + tokenId + " " + price);
         }
       );
       eventContractMarketInfura.removeListener(
         "marketItemBought",
-        (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
-          console.log("market item for sale " + tokenId + " " + price);
+        (nftContractAddress, tokenId, price, onSale, owner, seller) => {
+          loadOwnNFTs();
+          console.log("market item bought " + tokenId + " " + price);
         }
       );
     }; // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -531,6 +544,7 @@ function App() {
   const [onSaleNFTs, setOnSaleNFTs] = useState([]);
 
   async function loadOnSaleNFTs() {
+    /* if (network.chainId === 5) { */
     try {
       let data = await eventContractMarketInfura.fetchAllTokensOnSale();
 
@@ -562,6 +576,7 @@ function App() {
     } catch (error) {
       console.log(error);
     }
+    /*   } */
   }
 
   const [mintedNFTs, setMintedNFTs] = useState([]);
@@ -574,8 +589,7 @@ function App() {
         signer
       );
       let data = await signerContractNFT.getMintedTokens();
-      /* console.log(data); */
-      /* let tokenData = await axiosGetTokenData(data); */
+
       const tokenData = await Promise.all(
         data.map(async (index) => {
           //getting the TokenURI using the erc721uri method from our nft contract
@@ -602,11 +616,6 @@ function App() {
       );
 
       setMintedNFTs(tokenData);
-      /* let data = await signerContractMarket.fetchTokensMintedByCaller();
-
-      let tokenData = await axiosGetTokenData(data);
-
-      setMintedNFTs(tokenData); */
     }
   }
 
@@ -623,17 +632,6 @@ function App() {
         value: price,
       }
     );
-    /* let id = marketItem.tokenId;
-    id = id.toNumber();
-    let price = marketItem.price;
-    price = ethers.utils.parseEther(price);
-    await signerContractMarket.buyMarketToken(
-      id,
-      ContractAddress[5].NFTV2,
-      {
-        value: price,
-      }
-    ); */
   }
 
   // BUG: inputting a [0,]... bugs the website
@@ -662,28 +660,6 @@ function App() {
       previewPriceTwo /* ,
       ContractAddress[5].NFT */
     );
-    /* const signer = provider.getSigner();
-    let contract = new ethers.Contract(
-      ContractAddress[5].NftMarketPlace,
-      NftMarketPlace.abi,
-      signer
-    );
-    const nftContract = new ethers.Contract(
-      ContractAddress[5].NFT,
-      NFT.abi,
-      signer
-    );
-    let id = marketItem.tokenId;
-    id = id.toNumber();
-    await nftContract.setApprovalForAll(
-      ContractAddress[5].NftMarketPlace,
-      true
-    );
-     await contract.saleMarketToken(
-      id,
-      previewPriceTwo,
-      ContractAddress[5].NFT
-    ); */
   }
 
   /* const [newNftAddress, setNewNftAddress] = useState();
@@ -919,6 +895,8 @@ function App() {
                 loadOwnNFTs={loadOwnNFTs}
                 network={network}
                 changeNetworkToGoerli={changeNetworkToGoerli}
+                instance={instance}
+                connectWallet={connectWallet}
               />
             }
           />

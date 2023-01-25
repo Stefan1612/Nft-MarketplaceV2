@@ -38,7 +38,21 @@ const OwnNfts = (props) => {
             >
               NFT's that you currently own!
             </Typography>
-            {props.network.chainId !== 5 ? (
+            {!props.instance && !props.network.chainId && (
+              <Box sx={{ textAlign: "center" }}>
+                <Typography variant={"h2"} component={"h2"}>
+                  Hey you need to login first before you can see your NFTs!
+                </Typography>
+                <Button
+                  variant="outlined"
+                  sx={{ marginTop: "5px" }}
+                  onClick={(e) => props.connectWallet()}
+                >
+                  Connect Wallet!
+                </Button>
+              </Box>
+            )}
+            {props.network.chainId !== 5 && props.instance && (
               <Box sx={{ textAlign: "center" }}>
                 <Typography variant={"h2"} component={"h2"}>
                   Wrong network
@@ -50,11 +64,77 @@ const OwnNfts = (props) => {
                   Connect to Goerli!
                 </Button>
               </Box>
-            ) : (
+            )}
+            {props.network.chainId === 5 && props.instance && (
               <Box sx={{ textAlign: "center" }}>
                 <Typography variant={"h2"} component={"h2"}>
                   Connected to Goerli
                 </Typography>
+                <br></br>
+                <div
+                  className="col-md-10 offset-md-1 d-flex justify-content-around"
+                  style={{ marginTop: "6vh" }}
+                >
+                  <Container>
+                    <Box>
+                      <Grid container spacing={4}>
+                        {props.ownNFTs.map((index) => {
+                          return (
+                            <Grid item xs={4} key={index.tokenId}>
+                              <Paper elevation={24}>
+                                <Box padding={1.5}>
+                                  <img
+                                    width={"258vw"}
+                                    height={"258vh"}
+                                    alt="NFT"
+                                    src={index.image}
+                                  ></img>
+
+                                  <Typography component={"p"} variant={"h2"}>
+                                    {index.name}
+                                  </Typography>
+                                  <Typography
+                                    paddingBottom={"6vh"}
+                                    variant={"body2"}
+                                    component={"p"}
+                                  >
+                                    {index.description}
+                                  </Typography>
+
+                                  <Typography component={"p"} variant={"h3"}>
+                                    {index.price} Ether
+                                  </Typography>
+                                  {/* <Typography style={{ color: "white" }}>
+                                Current Seller: &nbsp;
+                                {index.owner.substring(0, 5) +
+                                  "..." +
+                                  index.owner.substring(38)}
+                              </Typography> */}
+                                  <Input
+                                    onChange={(e) => props.handleChangePrice(e)}
+                                    placeholder="Put in Sale price"
+                                  ></Input>
+                                  <Button
+                                    variant={"outlined"}
+                                    onClick={() => props.sellNFT(index)}
+                                  >
+                                    Sell
+                                  </Button>
+                                  {/*   <Button
+                                variant={"contained"}
+                                onClick={() => props.deletingNFT(index)}
+                              >
+                                Delete
+                              </Button> */}
+                                </Box>
+                              </Paper>
+                            </Grid>
+                          );
+                        })}
+                      </Grid>
+                    </Box>
+                  </Container>
+                </div>
               </Box>
               /*  props.ownNFTs.length === 0 && (
                 <h1 className="text-center " style={{ marginTop: "4vh" }}>
@@ -62,76 +142,13 @@ const OwnNfts = (props) => {
                 </h1>
               ) */
             )}
-            {props.ownNFTs.length === 0 && (
-              <h1 className="text-center " style={{ marginTop: "4vh" }}>
-                You don't own any NFTs currently!
-              </h1>
-            )}
-            <br></br>
-            <div
-              className="col-md-10 offset-md-1 d-flex justify-content-around"
-              style={{ marginTop: "6vh" }}
-            >
-              <Container>
-                <Box>
-                  <Grid container spacing={4}>
-                    {props.ownNFTs.map((index) => {
-                      return (
-                        <Grid item xs={4} key={index.tokenId}>
-                          <Paper elevation={24}>
-                            <Box padding={1.5}>
-                              <img
-                                width={"258vw"}
-                                height={"258vh"}
-                                alt="NFT"
-                                src={index.image}
-                              ></img>
-
-                              <Typography component={"p"} variant={"h2"}>
-                                {index.name}
-                              </Typography>
-                              <Typography
-                                paddingBottom={"6vh"}
-                                variant={"body2"}
-                                component={"p"}
-                              >
-                                {index.description}
-                              </Typography>
-
-                              <Typography component={"p"} variant={"h3"}>
-                                {index.price} Ether
-                              </Typography>
-                              {/* <Typography style={{ color: "white" }}>
-                                Current Seller: &nbsp;
-                                {index.owner.substring(0, 5) +
-                                  "..." +
-                                  index.owner.substring(38)}
-                              </Typography> */}
-                              <Input
-                                onChange={(e) => props.handleChangePrice(e)}
-                                placeholder="Put in Sale price"
-                              ></Input>
-                              <Button
-                                variant={"outlined"}
-                                onClick={() => props.sellNFT(index)}
-                              >
-                                Sell
-                              </Button>
-                              {/*   <Button
-                                variant={"contained"}
-                                onClick={() => props.deletingNFT(index)}
-                              >
-                                Delete
-                              </Button> */}
-                            </Box>
-                          </Paper>
-                        </Grid>
-                      );
-                    })}
-                  </Grid>
-                </Box>
-              </Container>
-            </div>
+            {props.ownNFTs.length === 0 &&
+              props.network.chainId === 5 &&
+              props.instance && (
+                <h1 className="text-center " style={{ marginTop: "4vh" }}>
+                  You don't own any NFTs currently!
+                </h1>
+              )}
           </Box>
         </Box>
         <Footer />

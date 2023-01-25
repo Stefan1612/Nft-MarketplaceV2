@@ -112,12 +112,12 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
     /// @notice signal used to update the website in real time after putting item on sale
     event marketItemOnSale(
         address indexed nftContractAddress,
-        uint256 tokenId,
+        uint256 indexed tokenId,
         uint256 price,
         bool onSale,
         address owner,
-        address indexed seller,
-        address minter
+        address indexed seller
+      
     );
     /// @notice signal used to update the website in real time after item has been bought
     event marketItemBought(
@@ -126,8 +126,8 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
         uint256 price,
         bool onSale,
         address owner,
-        address indexed seller,
-        address minter
+        address indexed seller
+      
     );
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -223,10 +223,14 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
 
         /// @dev updating state of for sale listed NFT
         idToMarketToken[_tokenId] = MarketToken(_tokenId, sellPrice, true, payable(_msgSender()));
-       /*  idToMarketToken[_tokenId].tokenId = _tokenId;
-        idToMarketToken[_tokenId].price = sellPrice;
-        idToMarketToken[_tokenId].onSale = true;
-        idToMarketToken[_tokenId].seller = payable(_msgSender()); */
+       emit marketItemOnSale(
+         nftAddress,
+        _tokenId,
+        sellPrice,
+        true,
+        msg.sender,
+        msg.sender
+        );
     }
 
     /// @notice buy NFT
@@ -280,9 +284,15 @@ contract NftMarketPlaceV2 is ReentrancyGuard, ERC2771Recipient{
 
         /// @dev update the state of bought market Token
         delete idToMarketToken[_tokenId];
-        /* idToMarketToken[_tokenId].price = 0;
-        idToMarketToken[_tokenId].onSale = false;
-        idToMarketToken[_tokenId].owner = payable(_msgSender()); */
+        emit marketItemBought(
+        nftAddress,
+        _tokenId,
+        idToMarketToken[_tokenId].price,
+        false,
+        IERC721(nftAddress).ownerOf(_tokenId),
+        IERC721(nftAddress).ownerOf(_tokenId)
+        );
+    
     }
 
     /// @notice getting all tokens which are currently up for sale
