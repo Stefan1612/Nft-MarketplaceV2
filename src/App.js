@@ -544,7 +544,7 @@ function App() {
   const [onSaleNFTs, setOnSaleNFTs] = useState([]);
 
   async function loadOnSaleNFTs() {
-    /* if (network.chainId === 5) { */
+    /*  if (network.chainId === 5) { */
     try {
       let data = await eventContractMarketInfura.fetchAllTokensOnSale();
 
@@ -576,7 +576,7 @@ function App() {
     } catch (error) {
       console.log(error);
     }
-    /*   } */
+    /*  } */
   }
 
   const [mintedNFTs, setMintedNFTs] = useState([]);
@@ -908,6 +908,9 @@ function App() {
               <MintedTokens
                 mintedNFTs={mintedNFTs}
                 changeNetworkToGoerli={changeNetworkToGoerli}
+                network={network}
+                instance={instance}
+                connectWallet={connectWallet}
               />
             }
           />
