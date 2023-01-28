@@ -66,15 +66,17 @@ const OwnNfts = (props) => {
               </Box>
             )}
             {props.network.chainId === 5 && props.instance && (
-              <Box sx={{ textAlign: "center" }}>
-                <Typography variant={"h2"} component={"h2"}>
-                  Connected to Goerli
-                </Typography>
-                <br></br>
-                <div
-                  className="col-md-10 offset-md-1 d-flex justify-content-around"
-                  style={{ marginTop: "6vh" }}
+              <Box sx={{ textAlign: "center", marginTop: "6vh" }}>
+                <Button
+                  onClick={(e) => props.loadOwnNFTs()}
+                  sx={{ color: "black", marginBottom: "10px" }}
+                  variant="contained"
                 >
+                  {" "}
+                  Refresh
+                </Button>
+
+                <div className="col-md-10 offset-md-1 d-flex justify-content-around">
                   <Container>
                     <Box>
                       <Grid container spacing={4}>

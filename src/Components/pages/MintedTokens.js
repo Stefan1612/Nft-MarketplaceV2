@@ -63,6 +63,17 @@ const MintedTokens = (props) => {
                 className="col-md-10 offset-md-1 "
                 style={{ marginTop: "6vh" }}
               >
+                <Box sx={{ textAlign: "center" }}>
+                  <Button
+                    onClick={(e) => props.loadMintedNFTs()}
+                    sx={{ color: "black", marginBottom: "10px" }}
+                    variant="contained"
+                  >
+                    {" "}
+                    Refresh
+                  </Button>
+                </Box>
+
                 <Container>
                   <Box>
                     <Grid container spacing={4}>

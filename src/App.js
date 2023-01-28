@@ -447,6 +447,7 @@ function App() {
       "marketItemCreated",
       (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
         /*   if (minter === account) { */
+
         loadMintedNFTs();
 
         /*  } */
@@ -476,6 +477,7 @@ function App() {
         "marketItemCreated",
         (nftContractAddress, tokenId, price, onSale, owner, seller, minter) => {
           /*  if (minter === account) { */
+
           loadMintedNFTs();
 
           /*    } */
@@ -532,7 +534,7 @@ function App() {
   }
 
   async function loadOwnNFTs() {
-    if (isProviderSet && network.chainId === 5) {
+    if (isProviderSet /* instance */ && network.chainId === 5) {
       let data = await signerContractMarket.fetchAllMyTokens();
       console.log(data);
       let tokenData = await axiosGetTokenData(data);
@@ -582,7 +584,8 @@ function App() {
   const [mintedNFTs, setMintedNFTs] = useState([]);
 
   async function loadMintedNFTs() {
-    if (isProviderSet && network.chainId === 5) {
+    if (isProviderSet /* instance */ && network.chainId === 5) {
+      console.log("load Minted NFTS");
       const signerContractNFT = new ethers.Contract(
         ContractAddress[5].NFTV2,
         NFT.abi,
@@ -911,6 +914,7 @@ function App() {
                 network={network}
                 instance={instance}
                 connectWallet={connectWallet}
+                loadMintedNFTs={loadMintedNFTs}
               />
             }
           />
